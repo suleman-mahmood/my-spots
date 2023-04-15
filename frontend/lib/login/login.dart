@@ -22,27 +22,29 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
       builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const MainHeading(text: 'Forgot your password?'),
-              const SizedBox(height: 10),
-              const BodyText(
-                  text:
-                      'Enter your email and we will send a link to reset your password'),
-              const SizedBox(height: 10),
-              const TextInput(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email_outlined),
-              ),
-              const SizedBox(height: 10),
-              PrimaryButton(
-                buttonText: 'Reset',
-                onPressed: () => {},
-              ),
-            ],
+        return SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const MainHeading(text: 'Forgot your password?'),
+                const SizedBox(height: 10),
+                const BodyText(
+                    text:
+                        'Enter your email and we will send a link to reset your password'),
+                const SizedBox(height: 10),
+                const TextInput(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email_outlined),
+                ),
+                const SizedBox(height: 10),
+                PrimaryButton(
+                  buttonText: 'Reset',
+                  onPressed: () => {},
+                ),
+              ],
+            ),
           ),
         );
       },
