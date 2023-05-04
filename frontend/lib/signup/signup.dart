@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myspots/services/auth.dart';
 import 'package:myspots/shared/buttons/PrimaryButton.dart';
 import 'package:myspots/shared/inputs/TextInput.dart';
 import 'package:myspots/shared/layouts/AuthLayout.dart';
@@ -6,11 +7,42 @@ import 'package:myspots/shared/typography/BodyText.dart';
 import 'package:myspots/shared/typography/LinkText.dart';
 import 'package:myspots/shared/typography/MainHeading.dart';
 import 'package:myspots/theme.dart';
+import 'package:provider/provider.dart';
+
+import 'package:myspots/services/models.dart' as model;
 
 class SignUpScreen extends StatelessWidget {
   SignUpScreen({super.key});
 
-  final _formKey = GlobalKey<FormState>();
+  String fullName = '';
+  String email = '';
+  String password = '';
+
+  final _signInFormKey = GlobalKey<FormState>();
+
+  void _submit(BuildContext context) async {
+    if (!_signInFormKey.currentState!.validate()) {
+      return;
+    }
+
+    await AuthService().signUpWithEmailPassword(
+      email,
+      password,
+      context,
+    );
+
+    // Navigator.pushNamed(context, '/home');
+  }
+
+  Future<void> _handleGoogleSignin(BuildContext context) async {
+    await AuthService().signInWithGoogle(context);
+
+    Navigator.pushNamed(context, '/home');
+  }
+
+  void _handleFacebookSignin(BuildContext context) async {
+    throw UnimplementedError();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,32 +52,51 @@ class SignUpScreen extends StatelessWidget {
         const MainHeading(text: 'Please Sign Up to continue'),
         const SizedBox(height: 20),
         Form(
-          key: _formKey,
+          key: _signInFormKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const TextInput(
-                labelText: 'Name',
+              TextInput(
+                labelText: 'Full name',
                 prefixIcon: Icon(Icons.account_circle_outlined),
+                onChanged: (v) => fullName = v,
+                validator: (nameValue) {
+                  if (nameValue == null) {
+                    return "Please enter your name";
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
-              const TextInput(
+              TextInput(
                 labelText: 'Email',
                 prefixIcon: Icon(Icons.email_outlined),
+                onChanged: (v) => email = v,
+                validator: (emailValue) {
+                  if (emailValue == null) {
+                    return "Please enter your email";
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
-              const TextInput(
+              TextInput(
                 labelText: 'Password',
                 prefixIcon: Icon(Icons.lock_outlined),
+                onChanged: (v) => password = v,
+                validator: (passwordValue) {
+                  if (passwordValue == null) {
+                    return "Please enter your password";
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
-              PrimaryButton(buttonText: 'Sign Up', onPressed: () => {}),
-              // onPressed: () {
-              // if (_formKey.currentState.validate()) {
-              //   _formKey.currentState.save();
-              //   // TODO: submit the form data
-              // }
+              PrimaryButton(
+                buttonText: 'Sign Up',
+                onPressed: () => _submit(context),
+              ),
             ],
           ),
         ),
@@ -56,9 +107,7 @@ class SignUpScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             GestureDetector(
-              onTap: () {
-                // TODO: handle Facebook login
-              },
+              onTap: () => _handleFacebookSignin(context),
               child: Container(
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -77,9 +126,7 @@ class SignUpScreen extends StatelessWidget {
             ),
             const SizedBox(width: 20),
             GestureDetector(
-              onTap: () {
-                // TODO: handle Google login
-              },
+              onTap: () => _handleGoogleSignin(context),
               child: Container(
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(

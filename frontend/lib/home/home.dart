@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myspots/services/backend.dart';
 import 'package:myspots/shared/avatars/ProfileAvator.dart';
 import 'package:myspots/shared/buttons/HashTagButton.dart';
 import 'package:myspots/shared/buttons/PrimaryButton.dart';
@@ -6,6 +7,7 @@ import 'package:myspots/shared/buttons/RoundedIconTextButton.dart';
 import 'package:myspots/shared/layouts/HomeLayout.dart';
 import 'package:myspots/shared/typography/BodyText.dart';
 import 'package:myspots/shared/typography/MainHeading.dart';
+import 'package:myspots/services/models.dart' as model;
 
 enum ReelsType { explore, following }
 
@@ -49,13 +51,41 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         Expanded(
-          child: PageView(
+          // Hardcoded implementation that was working
+          // child: PageView(
+          //   scrollDirection: Axis.vertical,
+          //   children: [
+          //     ReelView(),
+          //     ReelView(),
+          //     ReelView(),
+          //   ],
+          //   controller: controller,
+          // ),
+
+          child: PageView.builder(
             scrollDirection: Axis.vertical,
-            children: [
-              ReelView(),
-              ReelView(),
-              ReelView(),
-            ],
+            itemBuilder: (context, index) {
+              return FutureBuilder<List<model.Reel>>(
+                future: reelsTypeView == ReelsType.explore
+                    ? BackendService().getExploreReels()
+                    : BackendService().getFollowingReels(),
+                builder: (context, snapshot) {
+                  // If an error occurred while fetching data
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+
+                  // When the future completes successfully
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    final reels = snapshot.data!;
+                    return ReelView(reel: reels[index]);
+                  }
+
+                  // While waiting for the future to complete
+                  return const CircularProgressIndicator();
+                },
+              );
+            },
             controller: controller,
           ),
         ),
@@ -105,7 +135,9 @@ class Comment extends StatelessWidget {
 }
 
 class ReelView extends StatelessWidget {
-  const ReelView({super.key});
+  final model.Reel reel;
+
+  const ReelView({super.key, required this.reel});
 
   void _showCommentsSheet(BuildContext context) {
     showModalBottomSheet(

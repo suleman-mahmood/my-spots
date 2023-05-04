@@ -1,10 +1,18 @@
+import firebase_admin
+import json
+from firebase_admin import credentials, auth
+from dataclasses import asdict
 from flask import Flask, request, jsonify
 
 from ..entrypoint import commands, unit_of_work, queries
 from ..domain.model import Tag
+from .utils import authenticate_token
 
 app = Flask(__name__)
 PREFIX = "/api/v1"
+
+cred = credentials.Certificate("my-spots-1-firebase-adminsdk-f0m7r-477a5cec8d.json")
+firebase_admin.initialize_app(cred)
 
 # 200 OK
 # The request succeeded. The result meaning of "success" depends on the HTTP method:
@@ -41,7 +49,8 @@ def hello():
 
 
 @app.route(PREFIX + "/create-user", methods=["POST"])
-def create_user():
+@authenticate_token
+def create_user(uid):
     """Create a new user account"""
 
     if request.json is None:
@@ -50,6 +59,7 @@ def create_user():
 
     try:
         user = commands.create_user(
+            id=uid,
             full_name=request.json["full_name"],
             user_name=request.json["user_name"],
             email=request.json["email"],
@@ -298,3 +308,132 @@ def report_reel():
     except Exception as exception:
         return_obj = {"message": str(exception)}
         return jsonify(return_obj), 400
+
+
+# Get requests
+
+
+@app.route(PREFIX + "/decode-access-token", methods=["GET"])
+def decode_access_token():
+    """Decode an access token"""
+
+    # Fetch the token from the request headers
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return "Unauthorized", 401
+
+    # Extract the token from the Authorization header
+    token = auth_header.split("Bearer ")[1]
+
+    decoded_token = auth.verify_id_token(token)
+    uid = decoded_token["uid"]
+
+    return_obj = {"decoded_token": decoded_token, "uid": uid}
+    return jsonify(return_obj), 200
+
+
+@app.route(PREFIX + "/get-user", methods=["GET"])
+@authenticate_token
+def get_user(uid):
+    """Get a user"""
+
+    user = queries.get_user(
+        user_id=uid,
+        uow=unit_of_work.UnitOfWork(),
+    )
+
+    user_dict = asdict(user)
+    for attr, value in user_dict.items():
+        if isinstance(value, set):
+            user_dict[attr] = list(value)
+
+    user_dict["followers"] = len(user_dict["followers"])
+    user_dict["following"] = len(user_dict["following"])
+
+    return_obj = {"user": user_dict}
+    return jsonify(return_obj), 200
+
+
+@app.route(PREFIX + "/get-reel", methods=["GET"])
+def get_reel():
+    """Get a reel"""
+
+    if request.params["reel_id"] is None:
+        return_obj = {"message": "No reel_id is supplied in the request parameter"}
+        return jsonify(return_obj), 400
+
+    reel = queries.get_reel(
+        reel_id=request.params["reel_id"],
+        uow=unit_of_work.UnitOfWork(),
+    )
+
+    return_obj = {"reel": reel}
+    return jsonify(return_obj), 200
+
+
+@app.route(PREFIX + "/get-nearest-reels", methods=["GET"])
+def get_nearest_reels():
+    """Get nearest reels"""
+
+    if request.params["user_id"] is None:
+        return_obj = {"message": "No user_id is supplied in the request parameter"}
+        return jsonify(return_obj), 400
+
+    reels = queries.nearest_reels(
+        user_id=request.params["user_id"],
+        uow=unit_of_work.UnitOfWork(),
+    )
+
+    return_obj = {"reels": reels}
+    return jsonify(return_obj), 200
+
+
+@app.route(PREFIX + "/get-following-reels", methods=["GET"])
+def get_following_reels():
+    """Get following reels"""
+
+    if request.params["user_id"] is None:
+        return_obj = {"message": "No user_id is supplied in the request parameter"}
+        return jsonify(return_obj), 400
+
+    reels = queries.following_reels(
+        user_id=request.params["user_id"],
+        uow=unit_of_work.UnitOfWork(),
+    )
+
+    return_obj = {"reels": reels}
+    return jsonify(return_obj), 200
+
+
+@app.route(PREFIX + "/get-search-reels", methods=["GET"])
+def get_search_reels():
+    """Get search reels"""
+
+    if request.params["keywords"] is None:
+        return_obj = {"message": "No keywords is supplied in the request parameter"}
+        return jsonify(return_obj), 400
+
+    reels = queries.search_reels(
+        keywords=request.params["keywords"],
+        uow=unit_of_work.UnitOfWork(),
+    )
+
+    return_obj = {"reels": reels}
+    return jsonify(return_obj), 200
+
+
+@app.route(PREFIX + "/get-tag-reels", methods=["GET"])
+def get_tag_reels():
+    """Get tag reels"""
+
+    if request.params["tag_id"] is None:
+        return_obj = {"message": "No tag_id is supplied in the request parameter"}
+        return jsonify(return_obj), 400
+
+    reels = queries.tag_reels(
+        tag_id=request.params["tag_id"],
+        uow=unit_of_work.UnitOfWork(),
+    )
+
+    return_obj = {"reels": reels}
+    return jsonify(return_obj), 200

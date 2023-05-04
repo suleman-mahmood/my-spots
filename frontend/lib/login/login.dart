@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:myspots/services/auth.dart';
+import 'package:myspots/services/backend.dart';
 import 'package:myspots/shared/buttons/PrimaryButton.dart';
 import 'package:myspots/shared/inputs/TextInput.dart';
 import 'package:myspots/shared/layouts/AuthLayout.dart';
@@ -7,10 +10,39 @@ import 'package:myspots/shared/typography/LinkText.dart';
 import 'package:myspots/shared/typography/MainHeading.dart';
 import 'package:myspots/theme.dart';
 
+import 'package:myspots/services/models.dart' as model;
+
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
-  final _formKey = GlobalKey<FormState>();
+  String email = '';
+  String password = '';
+
+  final _loginFormKey = GlobalKey<FormState>();
+
+  Future<void> _submit(BuildContext context) async {
+    if (!_loginFormKey.currentState!.validate()) {
+      return;
+    }
+
+    await AuthService().signInWithEmailAndPassword(
+      email,
+      password,
+      context,
+    );
+
+    // Navigator.pushNamed(context, '/home');
+  }
+
+  Future<void> _handleGoogleSignin(BuildContext context) async {
+    await AuthService().signInWithGoogle(context);
+
+    Navigator.pushNamed(context, '/home');
+  }
+
+  void _handleFacebookSignin(BuildContext context) async {
+    throw UnimplementedError();
+  }
 
   void _showForgotPasswordSheet(BuildContext context) {
     showModalBottomSheet(
@@ -34,9 +66,16 @@ class LoginScreen extends StatelessWidget {
                     text:
                         'Enter your email and we will send a link to reset your password'),
                 const SizedBox(height: 10),
-                const TextInput(
+                TextInput(
                   labelText: 'Email',
                   prefixIcon: Icon(Icons.email_outlined),
+                  onChanged: (v) => email = v,
+                  validator: (emailValue) {
+                    if (emailValue == null) {
+                      return "Please enter your email";
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 10),
                 PrimaryButton(
@@ -59,19 +98,33 @@ class LoginScreen extends StatelessWidget {
         const MainHeading(text: 'Please login to continue'),
         const SizedBox(height: 20),
         Form(
-          key: _formKey,
+          key: _loginFormKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const TextInput(
+              TextInput(
                 labelText: 'Email',
                 prefixIcon: Icon(Icons.email_outlined),
+                onChanged: (v) => email = v,
+                validator: (emailValue) {
+                  if (emailValue == null) {
+                    return "Please enter your email";
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
-              const TextInput(
+              TextInput(
                 labelText: 'Password',
                 prefixIcon: Icon(Icons.lock_outlined),
+                onChanged: (v) => password = v,
+                validator: (passwordValue) {
+                  if (passwordValue == null) {
+                    return "Please enter your password";
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10),
               LinkText(
@@ -82,13 +135,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 10),
               PrimaryButton(
                 buttonText: 'Login',
-                onPressed: () => {
-                  Navigator.pushNamed(context, '/home')
-                  // if (_formKey.currentState.validate()) {
-                  //   _formKey.currentState.save();
-                  //   // TODO: submit the form data
-                  // }
-                },
+                onPressed: () => _submit(context),
               ),
             ],
           ),
@@ -100,9 +147,7 @@ class LoginScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             GestureDetector(
-              onTap: () {
-                // TODO: handle Facebook login
-              },
+              onTap: () => _handleFacebookSignin(context),
               child: Container(
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -121,9 +166,7 @@ class LoginScreen extends StatelessWidget {
             ),
             const SizedBox(width: 20),
             GestureDetector(
-              onTap: () {
-                // TODO: handle Google login
-              },
+              onTap: () => _handleGoogleSignin(context),
               child: Container(
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(

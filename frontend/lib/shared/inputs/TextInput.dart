@@ -6,11 +6,16 @@ class TextInput extends StatelessWidget {
   final Widget prefixIcon;
   final bool obscureText;
 
+  final void Function(String) onChanged;
+  final String? Function(String?)? validator;
+
   const TextInput({
     super.key,
     required this.labelText,
     required this.prefixIcon,
+    required this.onChanged,
     this.obscureText = false,
+    this.validator,
   });
 
   @override
@@ -18,6 +23,8 @@ class TextInput extends StatelessWidget {
     return TextFormField(
       obscureText: obscureText,
       keyboardType: TextInputType.emailAddress,
+      onChanged: onChanged,
+      validator: validator,
       decoration: InputDecoration(
         labelText: labelText,
         prefixIcon: prefixIcon,

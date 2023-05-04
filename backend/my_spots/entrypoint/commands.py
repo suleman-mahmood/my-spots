@@ -9,6 +9,7 @@ from ..domain.model import User, Reel, Comment, Report, Tag
 
 
 def create_user(
+    id: str,
     full_name: str,
     user_name: str,
     email: str,
@@ -19,7 +20,7 @@ def create_user(
     uow: AbstractUnitOfWork,
 ) -> User:
     user = User(
-        id=str(uuid4()),
+        id=id,
         full_name=full_name,
         user_name=user_name,
         email=email,

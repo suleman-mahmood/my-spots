@@ -1,0 +1,110 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:myspots/services/backend.dart';
+import 'package:myspots/services/exceptions.dart';
+import 'package:provider/provider.dart';
+import 'package:myspots/services/models.dart' as model;
+
+class AuthService {
+  final userStream = FirebaseAuth.instance.authStateChanges();
+  final user = FirebaseAuth.instance.currentUser;
+  final isUserLoggedIn =
+      FirebaseAuth.instance.currentUser == null ? false : true;
+
+  Future<UserCredential> signInWithGoogle(BuildContext context) async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    final userCredential = await FirebaseAuth.instance.signInWithCredential(
+      credential,
+    );
+
+    await _handleAuthSuccess(context, userCredential);
+
+    return userCredential;
+  }
+
+  Future<UserCredential> signUpWithEmailPassword(
+    String email,
+    String password,
+    BuildContext context,
+  ) async {
+    final userCredential =
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    await userCredential.user?.sendEmailVerification();
+
+    // Persist email and password to local storage
+    // final prefs = await SharedPreferences.getInstance();
+    // await prefs.setString("rollNumber", rollNumber.getRollNumber);
+    // await prefs.setString("password", password);
+
+    await BackendService().createUser(
+      model.User(email: email),
+      await userCredential.user?.getIdToken() ?? '',
+    );
+    await _handleAuthSuccess(context, userCredential);
+
+    return userCredential;
+  }
+
+  Future<UserCredential> signInWithEmailAndPassword(
+    String email,
+    String password,
+    BuildContext context,
+  ) async {
+    final userCredential =
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    if (userCredential.user == null) {
+      throw UserIsNull(
+        "Can't find logged in user using firebase's authentication service",
+      );
+    }
+    if (!userCredential.user!.emailVerified) {
+      throw EmailUnverified("User has not verified his email");
+    }
+
+    await _handleAuthSuccess(context, userCredential);
+
+    return userCredential;
+  }
+
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  Future<void> sendEmailVerification() async {
+    await user?.sendEmailVerification();
+  }
+
+  Future<void> _handleAuthSuccess(
+    BuildContext context,
+    UserCredential userCredential,
+  ) async {
+    final token = await userCredential.user?.getIdToken() ?? '';
+    final user = await BackendService().getUser(token);
+
+    print(user);
+
+    context.read<model.User>().setAccessToken(token);
+    context.read<model.User>().updateUser(user);
+  }
+}
