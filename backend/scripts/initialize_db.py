@@ -19,8 +19,8 @@ cursor = connection.cursor()
 
 with open("../my_spots/db/initialize-db.sql") as sql_init:
     sql = sql_init.read()
-    print(sql)
-    print("MySpots db successfully resetted and initialized!")
 
     cursor.execute(sql)
     connection.commit()
+
+    print("MySpots db successfully resetted and initialized!")

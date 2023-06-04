@@ -122,6 +122,7 @@ class Reel:
     user_id: str
     video_url: str
     location: Tuple[float, float]
+    spot_name: str
     caption: str
     description: str
     thumbnail_url: str

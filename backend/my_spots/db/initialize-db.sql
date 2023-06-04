@@ -6,6 +6,8 @@ drop table if exists tags cascade;
 drop table if exists likes cascade;
 drop table if exists views cascade;
 drop table if exists comments cascade;
+drop table if exists favourites cascade;
+drop table if exists reports cascade;
 
 -- drop type if exists bot_state_enum cascade;
 
@@ -13,13 +15,13 @@ drop table if exists comments cascade;
 
 create table users (
     id uuid,
-    full_name varchar(100),
-    user_name varchar(100),
-    email varchar(100),
-    phone_number varchar(100),
-    profile_text varchar(100),
+    full_name varchar(500),
+    user_name varchar(500),
+    email varchar(500),
+    phone_number varchar(500),
+    profile_text varchar(500),
     location point,
-    avatar_url varchar(100),
+    avatar_url varchar(500),
     following numeric,
     followers numeric,
 
@@ -29,16 +31,18 @@ create table users (
 create table reels (
     id uuid,
     user_id uuid,
-    video_url varchar(100),
+    video_url varchar(500),
     location point,
-    caption varchar(100),
-    description varchar(100),
-    thumbnail_url varchar(100),
+    spot_name varchar(500),
+    caption varchar(500),
+    description varchar(500),
+    thumbnail_url varchar(500),
     banned boolean,
     created_at timestamp with time zone,
     likes numeric,
     views numeric,
-
+    comments numeric,
+    favourites numeric,
 
     primary key (id),
     foreign key (user_id)
@@ -67,7 +71,7 @@ create table reels_tags (
 
 create table tags (
     id uuid,
-    tag_name varchar(100),
+    tag_name varchar(500),
 
     primary key (id)
 );
@@ -109,7 +113,7 @@ create table comments (
     id uuid,
     user_id uuid,
     reel_id uuid,
-    comment_text varchar(100),
+    comment_text varchar(500),
     created_at timestamp with time zone,
 
     primary key (id),
@@ -123,7 +127,7 @@ create table reports (
     id uuid,
     user_id uuid,
     reel_id uuid,
-    report_text varchar(100),
+    report_text varchar(500),
     created_at timestamp with time zone,
 
     primary key (id),

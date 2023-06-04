@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:myspots/services/backend.dart';
 import 'package:myspots/shared/avatars/ReelAvator.dart';
 import 'package:myspots/shared/buttons/HashTagButton.dart';
 import 'package:myspots/shared/buttons/RoundedIconTextButton.dart';
 import 'package:myspots/shared/layouts/HomeLayout.dart';
+import 'package:myspots/shared/loaders/CircularLoader.dart';
 import 'package:myspots/shared/reels/ReelGridView.dart';
 import 'package:myspots/shared/typography/BodyText.dart';
 import 'package:myspots/shared/typography/MainHeading.dart';
+import 'package:provider/provider.dart';
+import 'package:myspots/services/models.dart' as model;
 
 enum PostsAboutType { posts, about }
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({Key? key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -21,108 +25,170 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return HomeLayout(
+    final currentlySelectedUserId =
+        context.read<model.AppState>().currentlySelectedUserId;
+
+    return FutureBuilder(
+      future: BackendService().getAnyUser(currentlySelectedUserId),
+      builder: (context, snapshot) {
+        // If an error occurred while fetching data
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        // When the future completes successfully
+        if (snapshot.connectionState == ConnectionState.done) {
+          final user = snapshot.data!;
+
+          return HomeLayout(
+            children: [
+              buildProfileRow(user),
+              buildSegmentedButton(),
+              buildPostsOrAboutSection(currentlySelectedUserId, user),
+            ],
+          );
+        }
+
+        // While waiting for the future to complete
+        return const CircularLoader();
+      },
+    );
+  }
+
+  Widget buildProfileRow(model.User user) {
+    return Row(
       children: [
-        Row(
-          children: [
-            ReelAvatar(
-              imageUrl:
-                  'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MainHeading(text: 'Mia Cooper'),
-                SizedBox(height: 10),
-                BodyText(text: 'Industrial Engineer & Foodie'),
-                SizedBox(height: 20),
-                RoundedIconButton(
-                  icon: Icons.person_add,
-                  text: 'Follow',
-                  onPressed: () {},
-                ),
-              ],
-            )
-          ],
-        ),
-        SegmentedButton<PostsAboutType>(
-          segments: const <ButtonSegment<PostsAboutType>>[
-            ButtonSegment<PostsAboutType>(
-              value: PostsAboutType.posts,
-              label: Text('Posts'),
-            ),
-            ButtonSegment<PostsAboutType>(
-              value: PostsAboutType.about,
-              label: Text('About'),
-            ),
-          ],
-          selected: <PostsAboutType>{postsAboutTypeView},
-          onSelectionChanged: (Set<PostsAboutType> newSelection) {
-            setState(() {
-              postsAboutTypeView = newSelection.first;
-            });
-          },
-        ),
-        Visibility(
-          visible: postsAboutTypeView == PostsAboutType.posts,
-          child: Expanded(
-            child: ReelGridView(
-              reelUrls: [
-                'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-                'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-                'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-                'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-                'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-                'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-                'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-                'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-              ],
-            ),
+        ReelAvatar(imageUrl: user.avatarUrl),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MainHeading(text: user.fullName),
+              const SizedBox(height: 8),
+              BodyText(text: user.profileText),
+              const SizedBox(height: 16),
+              RoundedIconButton(
+                icon: Icons.person_add,
+                text: 'Follow',
+                onPressed: () {
+                  BackendService().followUser(user.id);
+                },
+              ),
+            ],
           ),
         ),
-        Visibility(
-          visible: postsAboutTypeView == PostsAboutType.about,
-          child: Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Column(
-                      children: [
-                        MainHeading(text: '520'),
-                        BodyText(text: 'Followers'),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        MainHeading(text: '250'),
-                        BodyText(text: 'Following'),
-                      ],
-                    )
-                  ],
-                ),
-                MainHeading(text: 'Following trends:'),
-                Wrap(
-                  spacing: 8.0, // Horizontal space between the buttons
-                  runSpacing: 8.0, // Vertical space between the rows of buttons
-                  children: [
-                    TranslucentGreyButton(text: 'italy', onPressed: () => {}),
-                    TranslucentGreyButton(text: 'food', onPressed: () => {}),
-                    TranslucentGreyButton(text: 'cafe', onPressed: () => {}),
-                    TranslucentGreyButton(text: 'coffee', onPressed: () => {}),
-                    TranslucentGreyButton(text: 'boating', onPressed: () => {}),
-                    TranslucentGreyButton(text: 'art', onPressed: () => {}),
-                    TranslucentGreyButton(
-                      text: 'photography',
-                      onPressed: () => {},
-                    ),
-                  ],
-                )
-              ],
-            ),
+      ],
+    );
+  }
+
+  Widget buildSegmentedButton() {
+    return SegmentedButton<PostsAboutType>(
+      segments: const <ButtonSegment<PostsAboutType>>[
+        ButtonSegment<PostsAboutType>(
+          value: PostsAboutType.posts,
+          label: Text('Posts'),
+        ),
+        ButtonSegment<PostsAboutType>(
+          value: PostsAboutType.about,
+          label: Text('About'),
+        ),
+      ],
+      selected: <PostsAboutType>{postsAboutTypeView},
+      onSelectionChanged: (Set<PostsAboutType> newSelection) {
+        setState(() {
+          postsAboutTypeView = newSelection.first;
+        });
+      },
+    );
+  }
+
+  Widget buildPostsOrAboutSection(
+      String currentlySelectedUserId, model.User user) {
+    if (postsAboutTypeView == PostsAboutType.posts) {
+      return FutureBuilder(
+        future: BackendService().getUserReels(currentlySelectedUserId),
+        builder: (context, snapshot) {
+          // If an error occurred while fetching data
+          if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          }
+
+          // When the future completes successfully
+          if (snapshot.connectionState == ConnectionState.done) {
+            final reels = snapshot.data!;
+            return Expanded(
+              child: ReelGridView(
+                reels: reels,
+              ),
+            );
+          }
+
+          // While waiting for the future to complete
+          return const CircularLoader();
+        },
+      );
+    } else {
+      return Expanded(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildFollowersFollowingRow(user),
+              // SizedBox(height: 16),
+              // MainHeading(text: 'Following tags:'),
+              // SizedBox(height: 8),
+              // buildTrendsWrap(),
+            ],
           ),
+        ),
+      );
+    }
+  }
+
+  Widget buildFollowersFollowingRow(model.User user) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        buildFollowersColumn(user),
+        buildFollowingColumn(user),
+      ],
+    );
+  }
+
+  Widget buildFollowersColumn(model.User user) {
+    return Column(
+      children: [
+        MainHeading(text: user.followers.toString()),
+        BodyText(text: 'Followers'),
+      ],
+    );
+  }
+
+  Widget buildFollowingColumn(model.User user) {
+    return Column(
+      children: [
+        MainHeading(text: user.following.toString()),
+        BodyText(text: 'Following'),
+      ],
+    );
+  }
+
+  Widget buildTrendsWrap() {
+    return Wrap(
+      spacing: 8.0,
+      runSpacing: 8.0,
+      children: [
+        TranslucentGreyButton(text: 'italy', onPressed: () => {}),
+        TranslucentGreyButton(text: 'food', onPressed: () => {}),
+        TranslucentGreyButton(text: 'cafe', onPressed: () => {}),
+        TranslucentGreyButton(text: 'coffee', onPressed: () => {}),
+        TranslucentGreyButton(text: 'boating', onPressed: () => {}),
+        TranslucentGreyButton(text: 'art', onPressed: () => {}),
+        TranslucentGreyButton(
+          text: 'photography',
+          onPressed: () => {},
         ),
       ],
     );

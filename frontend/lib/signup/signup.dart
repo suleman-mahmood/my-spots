@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myspots/services/auth.dart';
 import 'package:myspots/shared/buttons/PrimaryButton.dart';
@@ -25,17 +26,37 @@ class SignUpScreen extends StatelessWidget {
       return;
     }
 
-    await AuthService().signUpWithEmailPassword(
-      email,
-      password,
-      context,
-    );
+    context.read<model.AppState>().removeErrorMessage();
+    context.read<model.AppState>().startLoading();
+    try {
+      await AuthService().signUpWithEmailPassword(
+        email,
+        password,
+        fullName,
+        context,
+      );
+    } on FirebaseAuthException catch (e) {
+      print(e);
+      context.read<model.AppState>().setErrorMessage(e.message ?? '');
+      context.read<model.AppState>().stopLoading();
+      return;
+    }
 
-    // Navigator.pushNamed(context, '/home');
+    context.read<model.AppState>().stopLoading();
+
+    Navigator.pushNamed(context, '/home');
   }
 
   Future<void> _handleGoogleSignin(BuildContext context) async {
-    await AuthService().signInWithGoogle(context);
+    context.read<model.AppState>().removeErrorMessage();
+
+    try {
+      await AuthService().signInWithGoogle(context);
+    } on FirebaseAuthException catch (e) {
+      print(e);
+      context.read<model.AppState>().setErrorMessage(e.message ?? '');
+      return;
+    }
 
     Navigator.pushNamed(context, '/home');
   }
@@ -106,25 +127,25 @@ class SignUpScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: () => _handleFacebookSignin(context),
-              child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  children: const [
-                    Icon(
-                      Icons.facebook,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 20),
+            // GestureDetector(
+            //   onTap: () => _handleFacebookSignin(context),
+            //   child: Container(
+            //     padding: EdgeInsets.all(10),
+            //     decoration: BoxDecoration(
+            //       color: Colors.blue,
+            //       borderRadius: BorderRadius.circular(30),
+            //     ),
+            //     child: Row(
+            //       children: const [
+            //         Icon(
+            //           Icons.facebook,
+            //           color: Colors.white,
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(width: 20),
             GestureDetector(
               onTap: () => _handleGoogleSignin(context),
               child: Container(

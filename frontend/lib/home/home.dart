@@ -4,10 +4,15 @@ import 'package:myspots/shared/avatars/ProfileAvator.dart';
 import 'package:myspots/shared/buttons/HashTagButton.dart';
 import 'package:myspots/shared/buttons/PrimaryButton.dart';
 import 'package:myspots/shared/buttons/RoundedIconTextButton.dart';
+import 'package:myspots/shared/inputs/CommentInput.dart';
 import 'package:myspots/shared/layouts/HomeLayout.dart';
+import 'package:myspots/shared/loaders/CircularLoader.dart';
 import 'package:myspots/shared/typography/BodyText.dart';
 import 'package:myspots/shared/typography/MainHeading.dart';
 import 'package:myspots/services/models.dart' as model;
+import 'package:video_player/video_player.dart';
+import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
 
 enum ReelsType { explore, following }
 
@@ -22,50 +27,67 @@ class _HomeScreenState extends State<HomeScreen> {
   ReelsType reelsTypeView = ReelsType.explore;
   PageController controller = PageController(initialPage: 0);
 
+  void _showLocationSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const MainHeading(text: 'Enable your location?'),
+                const SizedBox(height: 10),
+                const BodyText(
+                  text:
+                      'This application requires that your location services are turned on to find the best Spots near you.',
+                ),
+                const SizedBox(height: 10),
+                PrimaryButton(
+                  buttonText: 'Enable',
+                  onPressed: () => handleLocationRequest(),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void handleLocationRequest() async {
+    await Geolocator.requestPermission();
+    if (context.mounted) Navigator.pop(context);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    Geolocator.checkPermission().then((permission) => {
+          if (permission == LocationPermission.denied ||
+              permission == LocationPermission.deniedForever)
+            {if (context.mounted) _showLocationSheet(context)}
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return HomeLayout(
       children: [
-        // Explore and following toggle buttons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SegmentedButton<ReelsType>(
-              segments: const <ButtonSegment<ReelsType>>[
-                ButtonSegment<ReelsType>(
-                  value: ReelsType.explore,
-                  label: BodyText(text: 'Explore'),
-                ),
-                ButtonSegment<ReelsType>(
-                  value: ReelsType.following,
-                  label: BodyText(text: 'Following'),
-                ),
-              ],
-              selected: <ReelsType>{reelsTypeView},
-              onSelectionChanged: (Set<ReelsType> newSelection) {
-                setState(() {
-                  reelsTypeView = newSelection.first;
-                });
-              },
-            ),
-          ],
-        ),
         Expanded(
-          // Hardcoded implementation that was working
-          // child: PageView(
-          //   scrollDirection: Axis.vertical,
-          //   children: [
-          //     ReelView(),
-          //     ReelView(),
-          //     ReelView(),
-          //   ],
-          //   controller: controller,
-          // ),
-
-          child: PageView.builder(
-            scrollDirection: Axis.vertical,
-            itemBuilder: (context, index) {
-              return FutureBuilder<List<model.Reel>>(
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              // Reel view
+              FutureBuilder<List<model.Reel>>(
                 future: reelsTypeView == ReelsType.explore
                     ? BackendService().getExploreReels()
                     : BackendService().getFollowingReels(),
@@ -78,15 +100,71 @@ class _HomeScreenState extends State<HomeScreen> {
                   // When the future completes successfully
                   if (snapshot.connectionState == ConnectionState.done) {
                     final reels = snapshot.data!;
-                    return ReelView(reel: reels[index]);
+
+                    if (reels.isEmpty) {
+                      return const Text('No reels found');
+                    }
+
+                    return PageView.builder(
+                      scrollDirection: Axis.vertical,
+                      itemCount: reels.length,
+                      itemBuilder: (context, index) {
+                        return ReelView(reel: reels[index]);
+                      },
+                      controller: controller,
+                    );
                   }
 
                   // While waiting for the future to complete
-                  return const CircularProgressIndicator();
+                  return const CircularLoader();
                 },
-              );
-            },
-            controller: controller,
+              ),
+              // Explore and following toggle buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: SegmentedButton<ReelsType>(
+                      segments: const <ButtonSegment<ReelsType>>[
+                        ButtonSegment<ReelsType>(
+                          value: ReelsType.explore,
+                          label: Padding(
+                            padding: EdgeInsets.only(left: 15.0),
+                            child: BodyText(text: 'Explore'),
+                          ),
+                        ),
+                        ButtonSegment<ReelsType>(
+                          value: ReelsType.following,
+                          label: Padding(
+                            padding: EdgeInsets.only(right: 15.0),
+                            child: BodyText(text: 'Following'),
+                          ),
+                        ),
+                      ],
+                      selected: <ReelsType>{reelsTypeView},
+                      onSelectionChanged: (Set<ReelsType> newSelection) {
+                        setState(() {
+                          reelsTypeView = newSelection.first;
+                        });
+                      },
+                      showSelectedIcon: false,
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.selected)) {
+                              return Colors.yellow.withOpacity(0.4);
+                            }
+                            return Colors.grey.withOpacity(0.4);
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ],
@@ -94,79 +172,231 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class Comment extends StatelessWidget {
-  const Comment({
+class CommentWidget extends StatelessWidget {
+  final model.Comment comment;
+
+  const CommentWidget({
+    required this.comment,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        ProfileAvatar(
-          imageUrl:
-              'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            MainHeading(text: 'Ben Johns'),
-            Container(
-              width: 150,
-              child: Flexible(
-                child: BodyText(
-                  text:
-                      'Yes I agree this place has the best pasta I have ever had.',
-                  textAlign: TextAlign.start,
-                ),
+    return FutureBuilder(
+      future: BackendService().getAnyUser(comment.userId),
+      builder: (context, snapshot) {
+        // If an error occurred while fetching data
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        // When the future completes successfully
+        if (snapshot.connectionState == ConnectionState.done) {
+          final user = snapshot.data!;
+
+          return Row(
+            children: [
+              ProfileAvatar(imageUrl: user.avatarUrl),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MainHeading(text: user.fullName),
+                  Container(
+                    width: 150,
+                    child: Flexible(
+                      child: BodyText(
+                        text: comment.commentText,
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Icon(Icons.heart_broken),
-            BodyText(text: '40'),
-          ],
-        ),
-      ],
+              // TODO: later implementation of adding hearts to comments
+              // Column(
+              //   children: [
+              //     Icon(Icons.heart_broken),
+              //     BodyText(text: '40'),
+              //   ],
+              // ),
+            ],
+          );
+        }
+
+        // While waiting for the future to complete
+        return const CircularLoader();
+      },
     );
   }
 }
 
-class ReelView extends StatelessWidget {
+class ReelView extends StatefulWidget {
   final model.Reel reel;
 
-  const ReelView({super.key, required this.reel});
+  ReelView({super.key, required this.reel});
+
+  @override
+  State<ReelView> createState() => _ReelViewState();
+}
+
+class _ReelViewState extends State<ReelView> {
+  late VideoPlayerController _controller;
+  String newComment = '';
+  List<String> reportReasons = [
+    'Animal cruelty',
+    'Dangerous place or individual',
+    'Self harm / suicide',
+    'Inappropriate content',
+    'Spam',
+    'Hate speech',
+    'Violence',
+    'Other',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = VideoPlayerController.network(widget.reel.videoUrl)
+      ..initialize().then((_) async {
+        await _controller.play();
+        await _controller.setLooping(true);
+        setState(() {});
+      });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
 
   void _showCommentsSheet(BuildContext context) {
     showModalBottomSheet(
-      context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(40),
           topRight: Radius.circular(40),
         ),
       ),
+      context: context,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const MainHeading(text: '23 comments'),
-                SizedBox(height: 10),
-                Comment(),
-                Comment(),
-                Comment(),
-                Comment(),
-                Comment(),
-                Comment(),
-              ],
-            ),
-          ),
-        );
+        return FutureBuilder(
+            future: BackendService().getReelComments(widget.reel.id),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+
+              // When the future completes successfully
+              if (snapshot.connectionState == ConnectionState.done) {
+                final comments = snapshot.data!;
+
+                if (comments.isEmpty) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 30,
+                      horizontal: 50,
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const MainHeading(text: 'No comments'),
+                          const SizedBox(height: 10),
+                          CommentInput(
+                            labelText: 'Add comment...',
+                            prefixIcon: const Icon(Icons.comment_bank_outlined),
+                            onChanged: (v) => newComment = v,
+                            validator: (commentValue) {
+                              if (commentValue == null) {
+                                return "Please enter a comment";
+                              }
+                              return null;
+                            },
+                            onSubmit: () {
+                              BackendService().commentReel(
+                                widget.reel.id,
+                                newComment,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        MainHeading(text: '${widget.reel.comments} comments'),
+                        const SizedBox(height: 10),
+                        ...comments
+                            .map((comm) => CommentWidget(comment: comm))
+                            .toList(),
+                        CommentInput(
+                          labelText: 'Add comment...',
+                          prefixIcon: const Icon(Icons.comment_bank_outlined),
+                          onChanged: (v) => newComment = v,
+                          validator: (commentValue) {
+                            if (commentValue == null) {
+                              return "Please enter a comment";
+                            }
+                            return null;
+                          },
+                          onSubmit: () {
+                            BackendService().commentReel(
+                              widget.reel.id,
+                              newComment,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              // While waiting for the future to complete
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 30,
+                  horizontal: 50,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const MainHeading(text: 'No comments'),
+                      const SizedBox(height: 10),
+                      CommentInput(
+                        labelText: 'Add comment...',
+                        prefixIcon: const Icon(Icons.comment_bank_outlined),
+                        onChanged: (v) => newComment = v,
+                        validator: (commentValue) {
+                          if (commentValue == null) {
+                            return "Please enter a comment";
+                          }
+                          return null;
+                        },
+                        onSubmit: () {
+                          BackendService().commentReel(
+                            widget.reel.id,
+                            newComment,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            });
       },
     );
   }
@@ -190,25 +420,23 @@ class ReelView extends StatelessWidget {
                 const MainHeading(text: 'Report'),
                 SizedBox(height: 10),
                 BodyText(text: 'Please select a reason'),
-                Card(
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
-                    child: BodyText(text: 'Animal cruelty'),
-                  ),
-                ),
-                Card(
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
-                    child: BodyText(text: 'Dangerous place or individual'),
-                  ),
-                ),
-                Card(
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
-                    child: BodyText(text: 'Self harm / suicide'),
-                  ),
-                ),
-                PrimaryButton(buttonText: 'Report', onPressed: () => {}),
+                ...reportReasons
+                    .map((reason) => GestureDetector(
+                          child: Card(
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 10),
+                              child: BodyText(text: reason),
+                            ),
+                          ),
+                          onTap: () {
+                            BackendService().reportReel(
+                              widget.reel.id,
+                              reason,
+                            );
+                            Navigator.pop(context);
+                          },
+                        ))
+                    .toList(),
               ],
             ),
           ),
@@ -219,98 +447,174 @@ class ReelView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
+    return AspectRatio(
+      aspectRatio: _controller.value.aspectRatio,
+      child: Stack(
         children: [
-          // Profile information and stuff
-          Row(
-            children: [
-              GestureDetector(
-                child: ProfileAvatar(
-                  imageUrl:
-                      'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
+          VideoPlayer(_controller),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 20,
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 60),
+                // Profile information and stuff
+                FutureBuilder(
+                  future: BackendService().getAnyUser(widget.reel.userId),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+
+                    // When the future completes successfully
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      final user = snapshot.data!;
+                      return Row(
+                        children: [
+                          GestureDetector(
+                            child: ProfileAvatar(
+                              imageUrl: user.avatarUrl,
+                            ),
+                            onTap: () =>
+                                {Navigator.pushNamed(context, '/profile')},
+                          ),
+                          Column(
+                            children: [
+                              GestureDetector(
+                                child: BodyText(
+                                  text: user.fullName,
+                                  textColor: Colors.white,
+                                ),
+                                onTap: () {
+                                  context
+                                      .read<model.AppState>()
+                                      .setCurrentlySelectedUser(user.id);
+                                  Navigator.pushNamed(context, '/profile');
+                                },
+                              ),
+                              BodyText(
+                                text: widget.reel.createdAt.toString(),
+                                textColor: Colors.white,
+                              ), // TODO: format it nicely
+                            ],
+                          ),
+                          Expanded(child: Container()),
+                          RoundedIconButton(
+                            icon: Icons.person_add,
+                            text: 'Follow',
+                            onPressed: () {
+                              BackendService().followUser(widget.reel.userId);
+                            },
+                          ),
+                        ],
+                      );
+                    }
+
+                    return const CircularLoader();
+                  },
                 ),
-                onTap: () => {Navigator.pushNamed(context, '/profile')},
-              ),
-              Column(
-                children: [
-                  GestureDetector(
-                    child: BodyText(text: 'Mia Cooper'),
-                    onTap: () => {Navigator.pushNamed(context, '/profile')},
-                  ),
-                  BodyText(text: '6 hours ago'),
-                ],
-              ),
-              Expanded(child: Container()),
-              RoundedIconButton(
-                icon: Icons.person_add,
-                text: 'Follow',
-                onPressed: () {},
-              ),
-            ],
-          ),
-          // All the available space for video
-          Expanded(child: Container()),
-          Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // tags
-                  Row(
-                    children: [
-                      TranslucentGreyButton(
-                        text: 'food',
-                        onPressed: () {},
-                      ),
-                      TranslucentGreyButton(
-                        text: 'cafe',
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                  // description fix error here
-                  Container(
-                    width: 300,
-                    child: Flexible(
-                      child: BodyText(
-                        text:
-                            'Take only memories, leave only footprints. To travel, to experience and learn: that is to live...',
-                      ),
+                // All the available space for video
+                Expanded(child: Container()),
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // tags
+                        Row(
+                          children: widget.reel.tags
+                              .map<TranslucentGreyButton>(
+                                (tag) => TranslucentGreyButton(
+                                  text: tag.tagName,
+                                  onPressed:
+                                      () {}, // TODO: redirect to tag page
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        // description fix error here
+                        Container(
+                          width: 300,
+                          child: Flexible(
+                            child: BodyText(
+                              text: widget.reel.description,
+                              textColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                        // location
+                        Row(
+                          children: [
+                            Icon(Icons.location_pin, color: Colors.white),
+                            BodyText(
+                              text: widget.reel.spotName,
+                              textColor: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                  // location
-                  Row(
-                    children: [
-                      Icon(Icons.location_pin),
-                      BodyText(text: 'Capriccio Cafe, Rome, Italy'),
-                    ],
-                  ),
-                ],
-              ),
-              Expanded(child: Container()),
-              Column(
-                children: [
-                  // Bookmark icon
-                  Icon(Icons.bookmark),
-                  // Heart icon
-                  Icon(Icons.heart_broken),
-                  BodyText(text: '40'),
-                  // Comments icon
-                  GestureDetector(
-                    child: Icon(Icons.comment),
-                    onTap: () => {_showCommentsSheet(context)},
-                  ),
-                  BodyText(text: '23'),
-                  // More icon
-                  GestureDetector(
-                    child: Icon(Icons.report),
-                    onTap: () => {_showReportSheet(context)},
-                  ),
-                ],
-              )
-            ],
+                    Expanded(child: Container()),
+                    Column(
+                      children: [
+                        // Bookmark icon
+                        GestureDetector(
+                          child: Icon(
+                            Icons.bookmark,
+                            color: Colors.lightBlue,
+                          ),
+                          onTap: () =>
+                              {BackendService().favouriteReel(widget.reel.id)},
+                        ),
+                        SizedBox(height: 10),
+
+                        // Heart icon
+                        GestureDetector(
+                          child: Icon(
+                            Icons.heart_broken,
+                            color: Colors.pink,
+                          ),
+                          onTap: () => {
+                            BackendService().likeReel(widget.reel.id),
+                          },
+                        ),
+                        BodyText(
+                          text: widget.reel.likes.toString(),
+                          textColor: Colors.white,
+                        ),
+
+                        SizedBox(height: 10),
+                        // Comments icon
+                        GestureDetector(
+                          child: Icon(
+                            Icons.comment,
+                            color: Colors.green,
+                          ),
+                          onTap: () => {_showCommentsSheet(context)},
+                        ),
+                        BodyText(
+                          text: widget.reel.comments.toString(),
+                          textColor: Colors.white,
+                        ),
+
+                        SizedBox(height: 10),
+                        // More icon
+                        GestureDetector(
+                          child: Icon(
+                            Icons.report,
+                            color: Colors.white,
+                          ),
+                          onTap: () => {_showReportSheet(context)},
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -1,11 +1,13 @@
 import pytest
 
 from .commands import *
+from uuid import uuid4
 from ..entrypoint import unit_of_work
 
 
 def seed_user(uow: AbstractUnitOfWork) -> User:
     return create_user(
+        id=str(uuid4()),
         full_name="Suleman Mahmood",
         user_name="suleman.mahmood",
         email="sulemanmahmood99@gmail.com",
@@ -21,6 +23,7 @@ def seed_reel(user_id: str, tags: Set[Tag], uow: AbstractUnitOfWork) -> Reel:
     return create_reel(
         user_id=user_id,
         video_url="https://www.reel.com",
+        spot_name="cool spot",
         location=(26.0, 31.0),
         caption="cool caption",
         description="cool description",

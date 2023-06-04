@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:myspots/routes.dart';
 import 'package:myspots/theme.dart';
@@ -7,12 +8,18 @@ import 'package:myspots/services/models.dart' as model;
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final cameras = await availableCameras();
+  final firstCamera = cameras.first;
+
+  runApp(MyApp(firstCamera: firstCamera));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final CameraDescription firstCamera;
+
+  const MyApp({super.key, required this.firstCamera});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -42,6 +49,9 @@ class _MyAppState extends State<MyApp> {
             providers: [
               ChangeNotifierProvider<model.User>(
                 create: (_) => model.User(),
+              ),
+              ChangeNotifierProvider<model.AppState>(
+                create: (_) => model.AppState(firstCamera: widget.firstCamera),
               ),
             ],
             child: MaterialApp(

@@ -1,5 +1,7 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class User extends ChangeNotifier {
   String id;
@@ -72,6 +74,37 @@ class Tag {
   String tagName;
 
   Tag({this.id = '', this.tagName = ''});
+
+  factory Tag.fromJson(Map<String, dynamic> json) {
+    return Tag(
+      id: json['id'],
+      tagName: json['tag_name'],
+    );
+  }
+}
+
+class Comment {
+  String id;
+  String userId;
+  String commentText;
+  DateTime createdAt;
+
+  Comment({
+    this.id = '',
+    this.userId = '',
+    this.commentText = '',
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime(9999, 12, 31, 23, 59, 59, 999, 999);
+
+  factory Comment.fromJson(Map<String, dynamic> json) {
+    return Comment(
+      id: json['id'],
+      userId: json['user_id'],
+      commentText: json['comment_text'],
+      createdAt: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
+          .parse(json['created_at']),
+    );
+  }
 }
 
 class Reel extends ChangeNotifier {
@@ -79,6 +112,7 @@ class Reel extends ChangeNotifier {
   String userId;
   String videoUrl;
   List<double> location;
+  String spotName;
   String caption;
   String description;
   String thumbnailUrl;
@@ -95,6 +129,7 @@ class Reel extends ChangeNotifier {
     this.userId = '',
     this.videoUrl = '',
     this.location = const [0.0, 0.0],
+    this.spotName = '',
     this.caption = '',
     this.description = '',
     this.thumbnailUrl = '',
@@ -114,16 +149,64 @@ class Reel extends ChangeNotifier {
       videoUrl: json['video_url'],
       location:
           List<double>.from(json['location'].map((value) => value.toDouble())),
+      spotName: json['spot_name'],
       caption: json['caption'],
       description: json['description'],
       thumbnailUrl: json['thumbnail_url'],
       banned: json['banned'],
-      tags: json['tags'],
+      tags: json['tags'].map<Tag>((tag) => Tag.fromJson(tag)).toSet(),
       likes: json['likes'],
       views: json['views'],
       comments: json['comments'],
       favourites: json['favourites'],
-      createdAt: DateTime.parse(json['created_at']),
+      createdAt: DateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
+          .parse(json['created_at']),
     );
+  }
+}
+
+class AppState extends ChangeNotifier {
+  String currentlySelectedUserId = '';
+  List<Reel> currentlySelectedReels = [];
+  CameraDescription firstCamera;
+
+  bool isLoading = false;
+  String erroMessage = '';
+
+  AppState({
+    this.currentlySelectedUserId = '',
+    this.currentlySelectedReels = const [],
+    this.isLoading = false,
+    required this.firstCamera,
+  });
+
+  void setCurrentlySelectedUser(String userId) {
+    currentlySelectedUserId = userId;
+    notifyListeners();
+  }
+
+  void setCurrentlySelectedReels(List<Reel> reels) {
+    currentlySelectedReels = reels;
+    notifyListeners();
+  }
+
+  void startLoading() {
+    isLoading = true;
+    notifyListeners();
+  }
+
+  void stopLoading() {
+    isLoading = false;
+    notifyListeners();
+  }
+
+  void setErrorMessage(String message) {
+    erroMessage = message;
+    notifyListeners();
+  }
+
+  void removeErrorMessage() {
+    erroMessage = '';
+    notifyListeners();
   }
 }

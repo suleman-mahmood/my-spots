@@ -41,6 +41,7 @@ class UserRepository(UserAbstractRepository):
         sql = """
             insert into users (id, full_name, user_name, email, phone_number, profile_text, location, avatar_url, following, followers)
             values (%s, %s, %s, %s, %s, %s, '%s', %s, %s, %s)
+            on conflict (id) do nothing
         """
         self.cursor.execute(
             sql,
@@ -203,8 +204,8 @@ class ReelRepository(ReelAbstractRepository):
 
     def add(self, reel: Reel) -> None:
         sql = """
-            insert into reels (id, user_id, video_url, location, caption, description, thumbnail_url, banned, created_at, likes, views)
-            values (%s, %s, %s, '%s', %s, %s, %s, %s, %s, %s, %s)
+            insert into reels (id, user_id, video_url, location, spot_name, caption, description, thumbnail_url, banned, created_at, likes, views, comments, favourites)
+            values (%s, %s, %s, '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.cursor.execute(
             sql,
@@ -213,6 +214,7 @@ class ReelRepository(ReelAbstractRepository):
                 reel.user_id,
                 reel.video_url,
                 reel.location,
+                reel.spot_name,
                 reel.caption,
                 reel.description,
                 reel.thumbnail_url,
@@ -220,6 +222,8 @@ class ReelRepository(ReelAbstractRepository):
                 reel.created_at,
                 0,  # Likes will be 0 when a new reel is created
                 0,  # Views will be 0 when a new reel is created
+                0,  # Comments will be 0 when a new reel is created
+                0,  # Favourites will be 0 when a new reel is created
             ],
         )
 
@@ -243,7 +247,7 @@ class ReelRepository(ReelAbstractRepository):
 
     def get(self, reel_id: str) -> Reel:
         sql = """
-            select id, user_id, video_url, location, caption, description, thumbnail_url, banned, created_at
+            select id, user_id, video_url, location, spot_name, caption, description, thumbnail_url, banned, created_at
             from reels
             where id = %s
         """
@@ -258,11 +262,12 @@ class ReelRepository(ReelAbstractRepository):
             user_id=row[1],
             video_url=row[2],
             location=tuple(float(r) for r in row[3][1:-1].split(",")),
-            caption=row[4],
-            description=row[5],
-            thumbnail_url=row[6],
-            banned=row[7],
-            created_at=row[8],
+            spot_name=row[4],
+            caption=row[5],
+            description=row[6],
+            thumbnail_url=row[7],
+            banned=row[8],
+            created_at=row[9],
         )
 
         sql = """
@@ -357,19 +362,22 @@ class ReelRepository(ReelAbstractRepository):
 
     def save(self, reel: Reel) -> None:
         sql = """
-            insert into reels (id, user_id, video_url, location, caption, description, thumbnail_url, banned, created_at, likes, views)
-            values (%s, %s, %s, '%s', %s, %s, %s, %s, %s, %s, %s)
+            insert into reels (id, user_id, video_url, location, spot_name, caption, description, thumbnail_url, banned, created_at, likes, views, comments, favourites)
+            values (%s, %s, %s, '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             on conflict (id) do update set
                 user_id = excluded.user_id,
                 video_url = excluded.video_url,
                 location = excluded.location,
+                spot_name = excluded.spot_name,
                 caption = excluded.caption,
                 description = excluded.description,
                 thumbnail_url = excluded.thumbnail_url,
                 banned = excluded.banned,
                 created_at = excluded.created_at,
                 likes = excluded.likes,
-                views = excluded.views
+                views = excluded.views,
+                comments = excluded.comments,
+                favourites = excluded.favourites
         """
         self.cursor.execute(
             sql,
@@ -378,6 +386,7 @@ class ReelRepository(ReelAbstractRepository):
                 reel.user_id,
                 reel.video_url,
                 reel.location,
+                reel.spot_name,
                 reel.caption,
                 reel.description,
                 reel.thumbnail_url,
@@ -385,6 +394,8 @@ class ReelRepository(ReelAbstractRepository):
                 reel.created_at,
                 len(reel.likes),
                 len(reel.views),
+                len(reel.comments),
+                len(reel.favourites),
             ],
         )
 

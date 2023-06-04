@@ -31,4 +31,7 @@ To run the flask server locally:
 To connect to the postgresql db using psql:
 `sudo -u postgres psql my_spots`
 
+To run ngrok and host your localhost:
+`ngrok http 5000`
+
 ## Frontend

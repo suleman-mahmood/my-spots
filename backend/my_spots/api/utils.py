@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from functools import wraps
 from firebase_admin import auth
 from flask import request
@@ -27,12 +28,29 @@ def authenticate_token(f):
 
             # Extract the user ID and other information from the decoded token
             uid = firebaseUidToUUID(decoded_token["uid"])
-            # ... access other token claims as needed ...
 
             # Call the decorated function with the extracted information
             return f(uid, *args, **kwargs)
+
         except auth.InvalidIdTokenError:
             # Token is invalid or expired
             return "Unauthorized", 401
 
     return decorated_function
+
+
+def jsonify_reel(reel):
+    reel_dict = asdict(reel)
+    for attr, value in reel_dict.items():
+        if isinstance(value, set):
+            reel_dict[attr] = list(value)
+
+    attributes = ["favourites", "likes", "views", "comments"]
+    for attr in attributes:
+        reel_dict[attr] = (
+            reel_dict[attr]
+            if isinstance(reel_dict[attr], int)
+            else len(reel_dict[attr])
+        )
+
+    return reel_dict

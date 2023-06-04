@@ -5,26 +5,31 @@ class TextInput extends StatelessWidget {
   final String labelText;
   final Widget prefixIcon;
   final bool obscureText;
+  bool? isTextBox;
 
   final void Function(String) onChanged;
   final String? Function(String?)? validator;
 
-  const TextInput({
+  TextInput({
     super.key,
     required this.labelText,
     required this.prefixIcon,
     required this.onChanged,
     this.obscureText = false,
     this.validator,
+    this.isTextBox,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       obscureText: obscureText,
-      keyboardType: TextInputType.emailAddress,
+      keyboardType: isTextBox == true
+          ? TextInputType.multiline
+          : TextInputType.emailAddress,
       onChanged: onChanged,
       validator: validator,
+      maxLines: isTextBox == true ? 3 : 1,
       decoration: InputDecoration(
         labelText: labelText,
         prefixIcon: prefixIcon,

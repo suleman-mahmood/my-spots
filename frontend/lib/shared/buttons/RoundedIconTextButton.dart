@@ -16,11 +16,11 @@ class RoundedIconButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-      ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          backgroundColor: Colors.grey.withOpacity(0.4)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

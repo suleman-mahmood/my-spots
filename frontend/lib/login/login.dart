@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myspots/services/auth.dart';
-import 'package:myspots/services/backend.dart';
 import 'package:myspots/shared/buttons/PrimaryButton.dart';
 import 'package:myspots/shared/inputs/TextInput.dart';
 import 'package:myspots/shared/layouts/AuthLayout.dart';
@@ -9,11 +8,11 @@ import 'package:myspots/shared/typography/BodyText.dart';
 import 'package:myspots/shared/typography/LinkText.dart';
 import 'package:myspots/shared/typography/MainHeading.dart';
 import 'package:myspots/theme.dart';
-
+import 'package:provider/provider.dart';
 import 'package:myspots/services/models.dart' as model;
 
 class LoginScreen extends StatelessWidget {
-  LoginScreen({super.key});
+  LoginScreen({Key? key});
 
   String email = '';
   String password = '';
@@ -25,23 +24,60 @@ class LoginScreen extends StatelessWidget {
       return;
     }
 
-    await AuthService().signInWithEmailAndPassword(
-      email,
-      password,
-      context,
-    );
+    context.read<model.AppState>().removeErrorMessage();
+    context.read<model.AppState>().startLoading();
 
-    // Navigator.pushNamed(context, '/home');
+    try {
+      await AuthService().signInWithEmailAndPassword(
+        email,
+        password,
+        context,
+      );
+    } on FirebaseAuthException catch (e) {
+      print(e);
+      context.read<model.AppState>().setErrorMessage(e.message ?? '');
+      context.read<model.AppState>().stopLoading();
+      return;
+    }
+
+    context.read<model.AppState>().stopLoading();
+
+    Navigator.pushNamed(context, '/home');
   }
 
   Future<void> _handleGoogleSignin(BuildContext context) async {
-    await AuthService().signInWithGoogle(context);
+    context.read<model.AppState>().removeErrorMessage();
+
+    try {
+      await AuthService().signInWithGoogle(context);
+    } on FirebaseAuthException catch (e) {
+      print(e);
+      context.read<model.AppState>().setErrorMessage(e.message ?? '');
+      return;
+    }
 
     Navigator.pushNamed(context, '/home');
   }
 
   void _handleFacebookSignin(BuildContext context) async {
     throw UnimplementedError();
+  }
+
+  void _handlePasswordReset(BuildContext context) async {
+    context.read<model.AppState>().removeErrorMessage();
+
+    context.read<model.AppState>().startLoading();
+    try {
+      await AuthService().sendPasswordResetEmail(email);
+    } on FirebaseAuthException catch (e) {
+      print(e);
+      context.read<model.AppState>().stopLoading();
+      context.read<model.AppState>().setErrorMessage(e.message ?? '');
+      Navigator.pop(context);
+      return;
+    }
+    context.read<model.AppState>().stopLoading();
+    Navigator.pop(context);
   }
 
   void _showForgotPasswordSheet(BuildContext context) {
@@ -63,8 +99,9 @@ class LoginScreen extends StatelessWidget {
                 const MainHeading(text: 'Forgot your password?'),
                 const SizedBox(height: 10),
                 const BodyText(
-                    text:
-                        'Enter your email and we will send a link to reset your password'),
+                  text:
+                      'Enter your email and we will send a link to reset your password',
+                ),
                 const SizedBox(height: 10),
                 TextInput(
                   labelText: 'Email',
@@ -80,7 +117,7 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 PrimaryButton(
                   buttonText: 'Reset',
-                  onPressed: () => {},
+                  onPressed: () => _handlePasswordReset(context),
                 ),
               ],
             ),
@@ -94,8 +131,8 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AuthLayout(
       children: [
-        const MainHeading(text: 'Welcome Back!'),
-        const MainHeading(text: 'Please login to continue'),
+        MainHeading(text: 'Welcome Back!'),
+        MainHeading(text: 'Please login to continue'),
         const SizedBox(height: 20),
         Form(
           key: _loginFormKey,
@@ -130,7 +167,7 @@ class LoginScreen extends StatelessWidget {
               LinkText(
                 text: 'Forgot password?',
                 textAlign: TextAlign.right,
-                onPressed: () => {_showForgotPasswordSheet(context)},
+                onPressed: () => _showForgotPasswordSheet(context),
               ),
               const SizedBox(height: 10),
               PrimaryButton(
@@ -146,25 +183,25 @@ class LoginScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: () => _handleFacebookSignin(context),
-              child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  children: const [
-                    Icon(
-                      Icons.facebook,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 20),
+            // GestureDetector(
+            //   onTap: () => _handleFacebookSignin(context),
+            //   child: Container(
+            //     padding: EdgeInsets.all(10),
+            //     decoration: BoxDecoration(
+            //       color: Colors.blue,
+            //       borderRadius: BorderRadius.circular(30),
+            //     ),
+            //     child: Row(
+            //       children: const [
+            //         Icon(
+            //           Icons.facebook,
+            //           color: Colors.white,
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(width: 20),
             GestureDetector(
               onTap: () => _handleGoogleSignin(context),
               child: Container(
@@ -178,7 +215,7 @@ class LoginScreen extends StatelessWidget {
                     Icon(
                       Icons.g_mobiledata,
                       color: Colors.white,
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -190,7 +227,7 @@ class LoginScreen extends StatelessWidget {
           alignment: WrapAlignment.center,
           children: [
             const BodyText(
-              text: 'Dont have an account? ',
+              text: 'Don\'t have an account? ',
             ),
             LinkText(
               text: 'SignUp',

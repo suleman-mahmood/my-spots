@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:myspots/shared/typography/BodyText.dart';
+import 'package:provider/provider.dart';
+import 'package:myspots/services/models.dart' as model;
 
 class HomeLayout extends StatefulWidget {
   final List<Widget> children;
@@ -23,15 +26,17 @@ class _HomeLayoutState extends State<HomeLayout> {
     });
 
     if (index == 0) {
-      Navigator.pushNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/home');
     } else if (index == 1) {
-      Navigator.pushNamed(context, '/search-reels');
+      Navigator.pushReplacementNamed(context, '/search-reels');
     } else if (index == 2) {
-      Navigator.pushNamed(context, '/add-reel');
+      Navigator.pushReplacementNamed(context, '/create-reel');
     } else if (index == 3) {
-      Navigator.pushNamed(context, '/saved-reels');
+      Navigator.pushReplacementNamed(context, '/saved-reels');
     } else if (index == 4) {
-      Navigator.pushNamed(context, '/profile');
+      final userId = context.read<model.User>().id;
+      context.read<model.AppState>().setCurrentlySelectedUser(userId);
+      Navigator.pushReplacementNamed(context, '/profile');
     }
   }
 
@@ -40,10 +45,22 @@ class _HomeLayoutState extends State<HomeLayout> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: widget.backgroundColor,
-        body: Column(
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          children: widget.children,
-        ),
+        body: Consumer<model.AppState>(builder: (context, appState, child) {
+          if (appState.isLoading) {
+            return const CircularProgressIndicator();
+          }
+          return Column(
+            children: [
+              ...widget.children,
+              appState.erroMessage.isNotEmpty
+                  ? BodyText(
+                      text: appState.erroMessage,
+                      textColor: Colors.red,
+                    )
+                  : const SizedBox.shrink(),
+            ],
+          );
+        }),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(

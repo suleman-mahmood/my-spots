@@ -31,6 +31,13 @@ class AuthService {
       credential,
     );
 
+    await BackendService().createUser(model.User(
+      email: googleUser?.email ?? '',
+      fullName: googleUser?.displayName ?? '',
+      avatarUrl:
+          'https://static.vecteezy.com/system/resources/previews/005/055/137/original/cute-panda-mascot-cartoon-icon-kawaii-mascot-character-illustration-for-sticker-poster-animation-children-book-or-other-digital-and-print-product-vector.jpg',
+    ));
+
     await _handleAuthSuccess(context, userCredential);
 
     return userCredential;
@@ -39,6 +46,7 @@ class AuthService {
   Future<UserCredential> signUpWithEmailPassword(
     String email,
     String password,
+    String fullName,
     BuildContext context,
   ) async {
     final userCredential =
@@ -54,10 +62,12 @@ class AuthService {
     // await prefs.setString("rollNumber", rollNumber.getRollNumber);
     // await prefs.setString("password", password);
 
-    await BackendService().createUser(
-      model.User(email: email),
-      await userCredential.user?.getIdToken() ?? '',
-    );
+    await BackendService().createUser(model.User(
+      email: email,
+      fullName: fullName,
+      avatarUrl:
+          'https://static.vecteezy.com/system/resources/previews/005/055/137/original/cute-panda-mascot-cartoon-icon-kawaii-mascot-character-illustration-for-sticker-poster-animation-children-book-or-other-digital-and-print-product-vector.jpg',
+    ));
     await _handleAuthSuccess(context, userCredential);
 
     return userCredential;
@@ -95,14 +105,16 @@ class AuthService {
     await user?.sendEmailVerification();
   }
 
+  Future<void> sendPasswordResetEmail(String email) async {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  }
+
   Future<void> _handleAuthSuccess(
     BuildContext context,
     UserCredential userCredential,
   ) async {
     final token = await userCredential.user?.getIdToken() ?? '';
     final user = await BackendService().getUser(token);
-
-    print(user);
 
     context.read<model.User>().setAccessToken(token);
     context.read<model.User>().updateUser(user);
