@@ -1,10 +1,8 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:myspots/src/services/backend.dart';
 import 'package:myspots/src/presentation/widgets/avatars/ReelAvator.dart';
 import 'package:myspots/src/presentation/widgets/buttons/HashTagButton.dart';
 import 'package:myspots/src/presentation/widgets/buttons/RoundedIconTextButton.dart';
-import 'package:myspots/src/presentation/widgets/layouts/HomeLayout.dart';
 import 'package:myspots/src/presentation/widgets/loaders/CircularLoader.dart';
 import 'package:myspots/src/presentation/widgets/reels/ReelGridView.dart';
 import 'package:myspots/src/presentation/widgets/typography/BodyText.dart';
@@ -14,15 +12,14 @@ import 'package:myspots/src/services/models.dart' as model;
 
 enum PostsAboutType { posts, about }
 
-@RoutePage()
-class ProfileView extends StatefulWidget {
-  const ProfileView({Key? key});
+class MyProfileView extends StatefulWidget {
+  const MyProfileView({Key? key});
 
   @override
-  State<ProfileView> createState() => _ProfileScreenState();
+  State<MyProfileView> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileView> {
+class _ProfileScreenState extends State<MyProfileView> {
   PostsAboutType postsAboutTypeView = PostsAboutType.posts;
 
   @override
@@ -42,37 +39,15 @@ class _ProfileScreenState extends State<ProfileView> {
         if (snapshot.connectionState == ConnectionState.done) {
           final user = snapshot.data!;
 
-          return (SafeArea(
-            child: Scaffold(
-              backgroundColor: Colors.white,
-              body:
-                  Consumer<model.AppState>(builder: (context, appState, child) {
-                if (appState.isLoading) {
-                  return const CircularProgressIndicator();
-                }
-                return Column(
-                  children: [
-                    Flexible(
-                      child: Column(
-                        children: [
-                          buildProfileRow(user),
-                          buildSegmentedButton(),
-                          buildPostsOrAboutSection(
-                              currentlySelectedUserId, user),
-                        ],
-                      ),
-                    ),
-                    appState.erroMessage.isNotEmpty
-                        ? BodyText(
-                            text: appState.erroMessage,
-                            textColor: Colors.red,
-                          )
-                        : const SizedBox.shrink(),
-                  ],
-                );
-              }),
+          return Flexible(
+            child: Column(
+              children: [
+                buildProfileRow(user),
+                buildSegmentedButton(),
+                buildPostsOrAboutSection(currentlySelectedUserId, user),
+              ],
             ),
-          ));
+          );
         }
 
         // While waiting for the future to complete

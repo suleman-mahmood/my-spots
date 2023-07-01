@@ -11,7 +11,6 @@ import 'package:myspots/src/services/models.dart' as model;
 
 import 'package:provider/provider.dart';
 
-@RoutePage()
 class CreateReelsView extends StatelessWidget {
   const CreateReelsView({super.key});
 
@@ -84,72 +83,74 @@ class TakeVideoScreenState extends State<TakeVideoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return HomeLayout(children: [
-      Expanded(
-          child: Container(
-        color: Colors.black,
-      )),
-      FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                CameraPreview(_controller),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      GestureDetector(
-                        onLongPress: () async {
-                          await startVideoRecording();
-                          setState(() {
-                            isRecording = true;
-                          });
-                        },
-                        onLongPressUp: () {
-                          setState(() {
-                            isRecording = false;
-                          });
-                          stopVideoRecording(context);
-                        },
-                        child: isRecording
-                            ? Icon(
-                                Icons.stop,
-                                size: 80,
-                                color: Colors.red,
-                              )
-                            : Icon(
-                                Icons.fiber_manual_record,
-                                size: 80,
-                                color: Colors.red,
-                              ),
-                      ),
-                      GestureDetector(
-                        child: Icon(
-                          Icons.browse_gallery_outlined,
-                          size: 80,
-                          color: Colors.green,
+    return Flexible(
+      child: Column(children: [
+        Expanded(
+            child: Container(
+          color: Colors.black,
+        )),
+        FutureBuilder<void>(
+          future: _initializeControllerFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  CameraPreview(_controller),
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        GestureDetector(
+                          onLongPress: () async {
+                            await startVideoRecording();
+                            setState(() {
+                              isRecording = true;
+                            });
+                          },
+                          onLongPressUp: () {
+                            setState(() {
+                              isRecording = false;
+                            });
+                            stopVideoRecording(context);
+                          },
+                          child: isRecording
+                              ? Icon(
+                                  Icons.stop,
+                                  size: 80,
+                                  color: Colors.red,
+                                )
+                              : Icon(
+                                  Icons.fiber_manual_record,
+                                  size: 80,
+                                  color: Colors.red,
+                                ),
                         ),
-                        onTap: () {
-                          pickVideo(context);
-                        },
-                      )
-                    ],
+                        GestureDetector(
+                          child: Icon(
+                            Icons.browse_gallery_outlined,
+                            size: 80,
+                            color: Colors.green,
+                          ),
+                          onTap: () {
+                            pickVideo(context);
+                          },
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            );
-          } else {
-            return const CircularLoader();
-          }
-        },
-      ),
-      Expanded(
-          child: Container(
-        color: Colors.black,
-      )),
-    ]);
+                ],
+              );
+            } else {
+              return const CircularLoader();
+            }
+          },
+        ),
+        Expanded(
+            child: Container(
+          color: Colors.black,
+        )),
+      ]),
+    );
   }
 }

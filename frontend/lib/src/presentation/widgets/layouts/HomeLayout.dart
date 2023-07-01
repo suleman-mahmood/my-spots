@@ -1,17 +1,19 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:myspots/src/config/router/app_router.dart';
+import 'package:myspots/src/presentation/views/create_reels_view.dart';
+import 'package:myspots/src/presentation/views/home_view.dart';
+import 'package:myspots/src/presentation/views/my_profile_view.dart';
+import 'package:myspots/src/presentation/views/profile_view.dart';
+import 'package:myspots/src/presentation/views/saved_view.dart';
+import 'package:myspots/src/presentation/views/search_reels_view.dart';
 import 'package:myspots/src/presentation/widgets/typography/BodyText.dart';
 import 'package:provider/provider.dart';
 import 'package:myspots/src/services/models.dart' as model;
 
 class HomeLayout extends StatefulWidget {
-  final List<Widget> children;
   final Color backgroundColor;
 
   const HomeLayout({
     Key? key,
-    required this.children,
     this.backgroundColor = Colors.white,
   }) : super(key: key);
 
@@ -20,26 +22,20 @@ class HomeLayout extends StatefulWidget {
 }
 
 class _HomeLayoutState extends State<HomeLayout> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
+
+  List<Widget> pageList = [
+    HomeView(),
+    SearchReelsView(),
+    CreateReelsView(),
+    SavedView(),
+    MyProfileView(),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-
-    if (index == 0) {
-      context.router.push(HomeRoute());
-    } else if (index == 1) {
-      context.router.push(SearchReelsRoute());
-    } else if (index == 2) {
-      context.router.push(CreateReelsRoute());
-    } else if (index == 3) {
-      context.router.push(SavedRoute());
-    } else if (index == 4) {
-      final userId = context.read<model.User>().id;
-      context.read<model.AppState>().setCurrentlySelectedUser(userId);
-      context.router.push(ProfileRoute());
-    }
   }
 
   @override
@@ -53,7 +49,10 @@ class _HomeLayoutState extends State<HomeLayout> {
           }
           return Column(
             children: [
-              ...widget.children,
+              pageList.elementAt(_selectedIndex),
+              // Column(
+              //   children: [Text('Wow')],
+              // ),
               appState.erroMessage.isNotEmpty
                   ? BodyText(
                       text: appState.erroMessage,

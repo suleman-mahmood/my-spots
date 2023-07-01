@@ -50,7 +50,7 @@ class FinalStepView extends StatelessWidget {
 
     context.read<model.AppState>().stopLoading();
 
-    context.router.push(HomeRoute());
+    context.router.push(DashboardRoute());
   }
 
   Future<List<double>> getLocation() async {
@@ -84,79 +84,77 @@ class FinalStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HomeLayout(children: [
-      Expanded(
-        child: Center(
-          child: SizedBox(
-            width: 250,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                MainHeading(text: 'Enter spot info below to post reel!'),
-                const SizedBox(height: 20),
-                Form(
-                  key: _loginFormKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextInput(
-                        labelText: 'Tags',
-                        isTextBox: true,
-                        prefixIcon: Icon(Icons.tag_outlined),
-                        onChanged: (v) => tags = v,
-                        validator: (v) {
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      TextInput(
-                        labelText: 'Description',
-                        isTextBox: true,
-                        prefixIcon: Icon(Icons.description_outlined),
-                        onChanged: (v) => description = v,
-                        validator: (v) {
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      TextInput(
-                        labelText: 'Caption',
-                        prefixIcon: Icon(Icons.closed_caption_outlined),
-                        onChanged: (v) => caption = v,
-                        validator: (v) {
-                          if (v == null) {
-                            return "Please enter caption for your spot";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      TextInput(
-                        labelText: 'Spot name',
-                        prefixIcon: Icon(Icons.location_pin),
-                        onChanged: (v) => spotName = v,
-                        validator: (v) {
-                          if (v == null) {
-                            return "Please enter name of your spot";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      PrimaryButton(
-                        buttonText: 'Post Reel',
-                        onPressed: () => _submit(context),
-                      ),
-                    ],
-                  ),
+    return Expanded(
+      child: Center(
+        child: SizedBox(
+          width: 250,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              MainHeading(text: 'Enter spot info below to post reel!'),
+              const SizedBox(height: 20),
+              Form(
+                key: _loginFormKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextInput(
+                      labelText: 'Tags',
+                      isTextBox: true,
+                      prefixIcon: Icon(Icons.tag_outlined),
+                      onChanged: (v) => tags = v,
+                      validator: (v) {
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    TextInput(
+                      labelText: 'Description',
+                      isTextBox: true,
+                      prefixIcon: Icon(Icons.description_outlined),
+                      onChanged: (v) => description = v,
+                      validator: (v) {
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    TextInput(
+                      labelText: 'Caption',
+                      prefixIcon: Icon(Icons.closed_caption_outlined),
+                      onChanged: (v) => caption = v,
+                      validator: (v) {
+                        if (v == null) {
+                          return "Please enter caption for your spot";
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    TextInput(
+                      labelText: 'Spot name',
+                      prefixIcon: Icon(Icons.location_pin),
+                      onChanged: (v) => spotName = v,
+                      validator: (v) {
+                        if (v == null) {
+                          return "Please enter name of your spot";
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    PrimaryButton(
+                      buttonText: 'Post Reel',
+                      onPressed: () => _submit(context),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
-    ]);
+    );
   }
 }

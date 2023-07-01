@@ -113,7 +113,7 @@ class _VideoPlayerPageState extends State<VideoPlayerView> {
 
   @override
   Widget build(BuildContext context) {
-    return HomeLayout(children: [
+    return Column(children: [
       Expanded(
           child: Container(
         color: Colors.black,

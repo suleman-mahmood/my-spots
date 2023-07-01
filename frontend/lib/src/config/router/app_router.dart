@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
 import 'package:myspots/src/presentation/views/create_reels_view.dart';
+import 'package:myspots/src/presentation/views/dashboard_view.dart';
 import 'package:myspots/src/presentation/views/final_step_view.dart';
 import 'package:myspots/src/presentation/views/home_view.dart';
 import 'package:myspots/src/presentation/views/login_view.dart';
@@ -22,27 +23,11 @@ class AppRouter extends _$AppRouter {
   List<AutoRoute> get routes => [
         AutoRoute(page: WelcomeRoute.page, initial: true),
         CustomRoute(
-          page: CreateReelsRoute.page,
-          transitionsBuilder: TransitionsBuilders.slideLeft,
-        ),
-        CustomRoute(
-          page: HomeRoute.page,
-          transitionsBuilder: TransitionsBuilders.slideLeft,
-        ),
-        CustomRoute(
           page: LoginRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
           page: ProfileRoute.page,
-          transitionsBuilder: TransitionsBuilders.slideLeft,
-        ),
-        CustomRoute(
-          page: SavedRoute.page,
-          transitionsBuilder: TransitionsBuilders.slideLeft,
-        ),
-        CustomRoute(
-          page: SearchReelsRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
         CustomRoute(
@@ -63,6 +48,10 @@ class AppRouter extends _$AppRouter {
         ),
         CustomRoute(
           page: FinalStepRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideLeft,
+        ),
+        CustomRoute(
+          page: DashboardRoute.page,
           transitionsBuilder: TransitionsBuilders.slideLeft,
         ),
       ];

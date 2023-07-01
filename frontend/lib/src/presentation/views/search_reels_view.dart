@@ -12,7 +12,6 @@ import 'package:myspots/src/presentation/widgets/typography/MainHeading.dart';
 import 'package:myspots/src/services/models.dart' as model;
 import 'package:provider/provider.dart';
 
-@RoutePage()
 class SearchReelsView extends StatefulWidget {
   const SearchReelsView({super.key});
 
@@ -28,43 +27,45 @@ class _SearchScreenState extends State<SearchReelsView> {
   Widget build(BuildContext context) {
     final user = context.read<model.User>();
 
-    return HomeLayout(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const Expanded(
-                child: MainHeading(text: 'What do you want to explore?')),
-            ProfileAvatar(imageUrl: user.avatarUrl),
-          ],
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: TextInput(
-            labelText: 'Search',
-            prefixIcon: Icon(Icons.search),
-            onChanged: (value) => {
-              if (value.isNotEmpty)
-                {
-                  setState(() {
-                    isSearching = true;
-                    searchText = value;
-                  })
-                }
-              else
-                {
-                  setState(() {
-                    isSearching = false;
-                    searchText = '';
-                  })
-                }
-            },
+    return Flexible(
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const Expanded(
+                  child: MainHeading(text: 'What do you want to explore?')),
+              ProfileAvatar(imageUrl: user.avatarUrl),
+            ],
           ),
-        ),
-        isSearching
-            ? Expanded(child: BuildSearchResults(searchText: searchText))
-            : Expanded(child: BuildExploreReels()),
-      ],
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: TextInput(
+              labelText: 'Search',
+              prefixIcon: Icon(Icons.search),
+              onChanged: (value) => {
+                if (value.isNotEmpty)
+                  {
+                    setState(() {
+                      isSearching = true;
+                      searchText = value;
+                    })
+                  }
+                else
+                  {
+                    setState(() {
+                      isSearching = false;
+                      searchText = '';
+                    })
+                  }
+              },
+            ),
+          ),
+          isSearching
+              ? Expanded(child: BuildSearchResults(searchText: searchText))
+              : Expanded(child: BuildExploreReels()),
+        ],
+      ),
     );
   }
 }

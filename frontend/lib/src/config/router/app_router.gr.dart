@@ -15,18 +15,6 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
-    SearchReelsRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const SearchReelsView(),
-      );
-    },
-    HomeRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const HomeView(),
-      );
-    },
     VideoPlayerRoute.name: (routeData) {
       final args = routeData.argsAs<VideoPlayerRouteArgs>();
       return AutoRoutePage<dynamic>(
@@ -55,18 +43,6 @@ abstract class _$AppRouter extends RootStackRouter {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: SignupView(key: args.key),
-      );
-    },
-    SavedRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const SavedView(),
-      );
-    },
-    CreateReelsRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const CreateReelsView(),
       );
     },
     ProfileRoute.name: (routeData) {
@@ -100,35 +76,13 @@ abstract class _$AppRouter extends RootStackRouter {
         ),
       );
     },
+    DashboardRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const DashboardView(),
+      );
+    },
   };
-}
-
-/// generated route for
-/// [SearchReelsView]
-class SearchReelsRoute extends PageRouteInfo<void> {
-  const SearchReelsRoute({List<PageRouteInfo>? children})
-      : super(
-          SearchReelsRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'SearchReelsRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
-}
-
-/// generated route for
-/// [HomeView]
-class HomeRoute extends PageRouteInfo<void> {
-  const HomeRoute({List<PageRouteInfo>? children})
-      : super(
-          HomeRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'HomeRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -223,34 +177,6 @@ class SignupRouteArgs {
   String toString() {
     return 'SignupRouteArgs{key: $key}';
   }
-}
-
-/// generated route for
-/// [SavedView]
-class SavedRoute extends PageRouteInfo<void> {
-  const SavedRoute({List<PageRouteInfo>? children})
-      : super(
-          SavedRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'SavedRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
-}
-
-/// generated route for
-/// [CreateReelsView]
-class CreateReelsRoute extends PageRouteInfo<void> {
-  const CreateReelsRoute({List<PageRouteInfo>? children})
-      : super(
-          CreateReelsRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'CreateReelsRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -350,4 +276,18 @@ class FinalStepRouteArgs {
   String toString() {
     return 'FinalStepRouteArgs{key: $key, videoUrl: $videoUrl, thumbnailUrl: $thumbnailUrl}';
   }
+}
+
+/// generated route for
+/// [DashboardView]
+class DashboardRoute extends PageRouteInfo<void> {
+  const DashboardRoute({List<PageRouteInfo>? children})
+      : super(
+          DashboardRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'DashboardRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }

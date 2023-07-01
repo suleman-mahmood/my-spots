@@ -18,7 +18,6 @@ import 'package:geolocator/geolocator.dart';
 
 enum ReelsType { explore, following }
 
-@RoutePage()
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
@@ -83,94 +82,89 @@ class _HomeScreenState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    return HomeLayout(
-      children: [
-        Expanded(
-          child: Stack(
-            alignment: Alignment.topCenter,
+    return Expanded(
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          // Reel view
+          FutureBuilder<List<model.Reel>>(
+            future: reelsTypeView == ReelsType.explore
+                ? BackendService().getExploreReels()
+                : BackendService().getFollowingReels(),
+            builder: (context, snapshot) {
+              // If an error occurred while fetching data
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+
+              // When the future completes successfully
+              if (snapshot.connectionState == ConnectionState.done) {
+                final reels = snapshot.data!;
+
+                if (reels.isEmpty) {
+                  return const Text('No reels found');
+                }
+
+                return PageView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: reels.length,
+                  itemBuilder: (context, index) {
+                    return ReelView(reel: reels[index]);
+                  },
+                  controller: controller,
+                );
+              }
+
+              // While waiting for the future to complete
+              return const CircularLoader();
+            },
+          ),
+          // Explore and following toggle buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Reel view
-              FutureBuilder<List<model.Reel>>(
-                future: reelsTypeView == ReelsType.explore
-                    ? BackendService().getExploreReels()
-                    : BackendService().getFollowingReels(),
-                builder: (context, snapshot) {
-                  // If an error occurred while fetching data
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-
-                  // When the future completes successfully
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    final reels = snapshot.data!;
-
-                    if (reels.isEmpty) {
-                      return const Text('No reels found');
-                    }
-
-                    return PageView.builder(
-                      scrollDirection: Axis.vertical,
-                      itemCount: reels.length,
-                      itemBuilder: (context, index) {
-                        return ReelView(reel: reels[index]);
-                      },
-                      controller: controller,
-                    );
-                  }
-
-                  // While waiting for the future to complete
-                  return const CircularLoader();
-                },
-              ),
-              // Explore and following toggle buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: SegmentedButton<ReelsType>(
-                      segments: const <ButtonSegment<ReelsType>>[
-                        ButtonSegment<ReelsType>(
-                          value: ReelsType.explore,
-                          label: Padding(
-                            padding: EdgeInsets.only(left: 15.0),
-                            child: BodyText(text: 'Explore'),
-                          ),
-                        ),
-                        ButtonSegment<ReelsType>(
-                          value: ReelsType.following,
-                          label: Padding(
-                            padding: EdgeInsets.only(right: 15.0),
-                            child: BodyText(text: 'Following'),
-                          ),
-                        ),
-                      ],
-                      selected: <ReelsType>{reelsTypeView},
-                      onSelectionChanged: (Set<ReelsType> newSelection) {
-                        setState(() {
-                          reelsTypeView = newSelection.first;
-                        });
-                      },
-                      showSelectedIcon: false,
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.selected)) {
-                              return Colors.yellow.withOpacity(0.4);
-                            }
-                            return Colors.grey.withOpacity(0.4);
-                          },
-                        ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: SegmentedButton<ReelsType>(
+                  segments: const <ButtonSegment<ReelsType>>[
+                    ButtonSegment<ReelsType>(
+                      value: ReelsType.explore,
+                      label: Padding(
+                        padding: EdgeInsets.only(left: 15.0),
+                        child: BodyText(text: 'Explore'),
                       ),
                     ),
+                    ButtonSegment<ReelsType>(
+                      value: ReelsType.following,
+                      label: Padding(
+                        padding: EdgeInsets.only(right: 15.0),
+                        child: BodyText(text: 'Following'),
+                      ),
+                    ),
+                  ],
+                  selected: <ReelsType>{reelsTypeView},
+                  onSelectionChanged: (Set<ReelsType> newSelection) {
+                    setState(() {
+                      reelsTypeView = newSelection.first;
+                    });
+                  },
+                  showSelectedIcon: false,
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.selected)) {
+                          return Colors.yellow.withOpacity(0.4);
+                        }
+                        return Colors.grey.withOpacity(0.4);
+                      },
+                    ),
                   ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

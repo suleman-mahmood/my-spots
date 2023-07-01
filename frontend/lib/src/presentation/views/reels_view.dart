@@ -28,19 +28,15 @@ class _ViewReelsScreenState extends State<ReelsView> {
   Widget build(BuildContext context) {
     final reels = context.read<model.AppState>().currentlySelectedReels;
 
-    return HomeLayout(
-      children: [
-        Expanded(
-          child: PageView.builder(
-            scrollDirection: Axis.vertical,
-            itemCount: reels.length,
-            itemBuilder: (context, index) {
-              return ReelView(reel: reels[index]);
-            },
-            controller: controller,
-          ),
-        ),
-      ],
+    return Expanded(
+      child: PageView.builder(
+        scrollDirection: Axis.vertical,
+        itemCount: reels.length,
+        itemBuilder: (context, index) {
+          return ReelView(reel: reels[index]);
+        },
+        controller: controller,
+      ),
     );
   }
 }

@@ -45,7 +45,7 @@ class LoginView extends StatelessWidget {
 
     context.read<model.AppState>().stopLoading();
 
-    context.router.push(HomeRoute());
+    context.router.push(DashboardRoute());
   }
 
   Future<void> _handleGoogleSignin(BuildContext context) async {
@@ -59,7 +59,7 @@ class LoginView extends StatelessWidget {
       return;
     }
 
-    context.router.push(HomeRoute());
+    context.router.push(DashboardRoute());
   }
 
   void _handleFacebookSignin(BuildContext context) async {
