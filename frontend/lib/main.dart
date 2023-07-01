@@ -1,9 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:myspots/routes.dart';
-import 'package:myspots/theme.dart';
+import 'package:myspots/src/config/router/app_router.dart';
+import 'package:myspots/src/config/themes/theme.dart';
 import 'package:provider/provider.dart';
-import 'package:myspots/services/models.dart' as model;
+import 'package:myspots/src/services/models.dart' as model;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -30,6 +30,8 @@ class _MyAppState extends State<MyApp> {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  final _appRouter = AppRouter();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -46,20 +48,20 @@ class _MyAppState extends State<MyApp> {
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
-            providers: [
-              ChangeNotifierProvider<model.User>(
-                create: (_) => model.User(),
-              ),
-              ChangeNotifierProvider<model.AppState>(
-                create: (_) => model.AppState(firstCamera: widget.firstCamera),
-              ),
-            ],
-            child: MaterialApp(
-              title: 'My Spots',
-              theme: appTheme,
-              routes: appRoutes,
-            ),
-          );
+              providers: [
+                ChangeNotifierProvider<model.User>(
+                  create: (_) => model.User(),
+                ),
+                ChangeNotifierProvider<model.AppState>(
+                  create: (_) =>
+                      model.AppState(firstCamera: widget.firstCamera),
+                ),
+              ],
+              child: MaterialApp.router(
+                title: 'My Spots',
+                routerConfig: _appRouter.config(),
+                theme: appTheme,
+              ));
         }
 
         // Otherwise, show something whilst waiting for initialization to complete
