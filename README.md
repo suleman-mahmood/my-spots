@@ -35,3 +35,5 @@ To run ngrok and host your localhost:
 `ngrok http 5000`
 
 ## Frontend
+
+run `dart fix` to fix all warning and issues

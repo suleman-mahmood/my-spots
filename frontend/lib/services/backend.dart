@@ -5,7 +5,7 @@ import 'package:myspots/services/models.dart' as model;
 
 class BackendService {
   // final String apiUrl = 'http://10.0.2.2:5000/api/v1';
-  final String apiUrl = 'https://f9c8-110-93-234-10.ngrok-free.app/api/v1';
+  final String apiUrl = 'https://afe5-221-120-220-11.ngrok-free.app/api/v1';
 
   Future<void> checkApi() async {
     final url = Uri.parse('$apiUrl');

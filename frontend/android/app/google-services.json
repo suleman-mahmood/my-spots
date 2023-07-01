@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "975205278869-6f23ulnuuqotda53coff4bsp547g4hr2.apps.googleusercontent.com",
+          "client_id": "975205278869-5687cjebml84qfh8v62aqk3p047igr57.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.myspots",
+            "certificate_hash": "13d96d54a0f301c268a38f868c36fd8e70f00e13"
+          }
+        },
+        {
+          "client_id": "975205278869-gphoo80shmqr6cuacknd1e90lpjko12t.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

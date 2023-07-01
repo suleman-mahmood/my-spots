@@ -63,6 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '975205278869',
     projectId: 'my-spots-1',
     storageBucket: 'my-spots-1.appspot.com',
+    androidClientId: '975205278869-5687cjebml84qfh8v62aqk3p047igr57.apps.googleusercontent.com',
     iosClientId: '975205278869-qujf76h5niush72fc2o9ansv5qifr59s.apps.googleusercontent.com',
     iosBundleId: 'com.example.myspots',
   );

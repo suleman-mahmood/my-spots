@@ -62,12 +62,15 @@ class AuthService {
     // await prefs.setString("rollNumber", rollNumber.getRollNumber);
     // await prefs.setString("password", password);
 
+    print("Before create user call");
     await BackendService().createUser(model.User(
       email: email,
       fullName: fullName,
       avatarUrl:
           'https://static.vecteezy.com/system/resources/previews/005/055/137/original/cute-panda-mascot-cartoon-icon-kawaii-mascot-character-illustration-for-sticker-poster-animation-children-book-or-other-digital-and-print-product-vector.jpg',
     ));
+    print("After successful create user call");
+
     await _handleAuthSuccess(context, userCredential);
 
     return userCredential;

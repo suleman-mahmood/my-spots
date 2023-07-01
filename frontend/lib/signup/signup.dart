@@ -122,50 +122,50 @@ class SignUpScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        const BodyText(text: 'Continue with'),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // GestureDetector(
-            //   onTap: () => _handleFacebookSignin(context),
-            //   child: Container(
-            //     padding: EdgeInsets.all(10),
-            //     decoration: BoxDecoration(
-            //       color: Colors.blue,
-            //       borderRadius: BorderRadius.circular(30),
-            //     ),
-            //     child: Row(
-            //       children: const [
-            //         Icon(
-            //           Icons.facebook,
-            //           color: Colors.white,
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
-            // const SizedBox(width: 20),
-            GestureDetector(
-              onTap: () => _handleGoogleSignin(context),
-              child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  children: const [
-                    Icon(
-                      Icons.g_mobiledata,
-                      color: Colors.white,
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+        // const BodyText(text: 'Continue with'),
+        // const SizedBox(height: 10),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: [
+        // GestureDetector(
+        //   onTap: () => _handleFacebookSignin(context),
+        //   child: Container(
+        //     padding: EdgeInsets.all(10),
+        //     decoration: BoxDecoration(
+        //       color: Colors.blue,
+        //       borderRadius: BorderRadius.circular(30),
+        //     ),
+        //     child: Row(
+        //       children: const [
+        //         Icon(
+        //           Icons.facebook,
+        //           color: Colors.white,
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+        // const SizedBox(width: 20),
+        //     GestureDetector(
+        //       onTap: () => _handleGoogleSignin(context),
+        //       child: Container(
+        //         padding: EdgeInsets.all(10),
+        //         decoration: BoxDecoration(
+        //           color: Colors.red,
+        //           borderRadius: BorderRadius.circular(30),
+        //         ),
+        //         child: Row(
+        //           children: const [
+        //             Icon(
+        //               Icons.g_mobiledata,
+        //               color: Colors.white,
+        //             )
+        //           ],
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
         const SizedBox(height: 20),
         Wrap(
           alignment: WrapAlignment.center,
