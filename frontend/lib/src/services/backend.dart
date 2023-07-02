@@ -4,8 +4,14 @@ import 'package:myspots/src/services/auth.dart';
 import 'package:myspots/src/services/models.dart' as model;
 
 class BackendService {
+  // For localhost in an emulator
   // final String apiUrl = 'http://10.0.2.2:5000/api/v1';
+
+  // For Ngrok, development
   final String apiUrl = 'https://2ec9-111-68-103-169.ngrok-free.app/api/v1';
+
+  // For deployment in GCP
+  // final String apiUrl = 'https://my-spots-1.uk.r.appspot.com/api/v1';
 
   Future<void> checkApi() async {
     final url = Uri.parse('$apiUrl');

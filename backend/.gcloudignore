@@ -1,0 +1,5 @@
+scripts/
+venv/
+
+.gitignore
+my_spots.zip
