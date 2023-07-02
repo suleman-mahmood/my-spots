@@ -8,7 +8,7 @@
 PRODUCT_NAME = myspots
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.myspots
+PRODUCT_BUNDLE_IDENTIFIER = com.myspots.myspots
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2023 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2023 com.myspots. All rights reserved.

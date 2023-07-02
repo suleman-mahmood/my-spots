@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:975205278869:android:0b2bdcebc2c5198daee79c",
         "android_client_info": {
-          "package_name": "com.example.myspots"
+          "package_name": "com.myspots.myspots"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "975205278869-5687cjebml84qfh8v62aqk3p047igr57.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.myspots",
+            "package_name": "com.myspots.myspots",
             "certificate_hash": "13d96d54a0f301c268a38f868c36fd8e70f00e13"
           }
         },
@@ -42,7 +42,7 @@
               "client_id": "975205278869-qujf76h5niush72fc2o9ansv5qifr59s.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.myspots"
+                "bundle_id": "com.myspots.myspots"
               }
             }
           ]

@@ -37,3 +37,26 @@ To run ngrok and host your localhost:
 ## Frontend
 
 run `dart fix` to fix all warning and issues
+
+### Generating keyfile
+
+password: awesome
+
+What is your first and last name?
+  [Suleman]:  Suleman Mahmood
+What is the name of your organizational unit?
+  [MySpots]:  MySpots
+What is the name of your organization?
+  [MySpots]:  MySpots
+What is the name of your City or Locality?
+  [Lahore]:  San Francisco
+What is the name of your State or Province?
+  [Punjab]:  California
+What is the two-letter country code for this unit?
+  [PK]:  US
+Is CN=Suleman Mahmood, OU=MySpots, O=MySpots, L=San Francisco, ST=California, C=US correct?
+  [no]:  yes
+
+Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 10,000 days
+        for: CN=Suleman Mahmood, OU=MySpots, O=MySpots, L=San Francisco, ST=California, C=US
+[Storing /home/suleman/upload-keystore.jks]
