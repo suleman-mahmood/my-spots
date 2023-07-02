@@ -11,32 +11,36 @@ class SavedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flexible(
-      child: Column(
-        children: [
-          MainHeading(text: "Saved"),
-          FutureBuilder(
-            future: BackendService().getUserFavouriteReels(),
-            builder: (context, snapshot) {
-              // If an error occurred while fetching data
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              }
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Column(
+          children: [
+            MainHeading(text: "Saved"),
+            SizedBox(height: 10),
+            FutureBuilder(
+              future: BackendService().getUserFavouriteReels(),
+              builder: (context, snapshot) {
+                // If an error occurred while fetching data
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
 
-              // When the future completes successfully
-              if (snapshot.connectionState == ConnectionState.done) {
-                final reels = snapshot.data!;
-                return Expanded(
-                  child: ReelGridView(
-                    reels: reels,
-                  ),
-                );
-              }
+                // When the future completes successfully
+                if (snapshot.connectionState == ConnectionState.done) {
+                  final reels = snapshot.data!;
+                  return Expanded(
+                    child: ReelGridView(
+                      reels: reels,
+                    ),
+                  );
+                }
 
-              // While waiting for the future to complete
-              return const CircularProgressIndicator();
-            },
-          ),
-        ],
+                // While waiting for the future to complete
+                return const CircularProgressIndicator();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -24,8 +24,8 @@ class _ProfileScreenState extends State<MyProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    final currentlySelectedUserId =
-        context.read<model.AppState>().currentlySelectedUserId;
+    final user = context.read<model.User>();
+    final currentlySelectedUserId = user.id;
 
     return FutureBuilder(
       future: BackendService().getAnyUser(currentlySelectedUserId),
@@ -40,12 +40,17 @@ class _ProfileScreenState extends State<MyProfileView> {
           final user = snapshot.data!;
 
           return Flexible(
-            child: Column(
-              children: [
-                buildProfileRow(user),
-                buildSegmentedButton(),
-                buildPostsOrAboutSection(currentlySelectedUserId, user),
-              ],
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Column(
+                children: [
+                  buildProfileRow(user),
+                  SizedBox(height: 10),
+                  buildSegmentedButton(),
+                  SizedBox(height: 10),
+                  buildPostsOrAboutSection(currentlySelectedUserId, user),
+                ],
+              ),
             ),
           );
         }

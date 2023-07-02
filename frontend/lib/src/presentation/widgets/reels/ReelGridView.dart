@@ -21,7 +21,6 @@ class ReelGridView extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.0),
               image: DecorationImage(

@@ -7,7 +7,6 @@ import 'package:myspots/src/presentation/widgets/buttons/HashTagButton.dart';
 import 'package:myspots/src/presentation/widgets/buttons/PrimaryButton.dart';
 import 'package:myspots/src/presentation/widgets/buttons/RoundedIconTextButton.dart';
 import 'package:myspots/src/presentation/widgets/inputs/CommentInput.dart';
-import 'package:myspots/src/presentation/widgets/layouts/HomeLayout.dart';
 import 'package:myspots/src/presentation/widgets/loaders/CircularLoader.dart';
 import 'package:myspots/src/presentation/widgets/typography/BodyText.dart';
 import 'package:myspots/src/presentation/widgets/typography/MainHeading.dart';
@@ -15,6 +14,7 @@ import 'package:myspots/src/services/models.dart' as model;
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 enum ReelsType { explore, following }
 
@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const MainHeading(text: 'Enable your location?'),
+                MainHeading(text: 'Enable your location?'),
                 const SizedBox(height: 10),
                 const BodyText(
                   text:
@@ -300,7 +300,7 @@ class _ReelViewState extends State<ReelView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const MainHeading(text: 'No comments'),
+                          MainHeading(text: 'No comments'),
                           const SizedBox(height: 10),
                           CommentInput(
                             labelText: 'Add comment...',
@@ -370,7 +370,7 @@ class _ReelViewState extends State<ReelView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const MainHeading(text: 'No comments'),
+                      MainHeading(text: 'No comments'),
                       const SizedBox(height: 10),
                       CommentInput(
                         labelText: 'Add comment...',
@@ -414,7 +414,7 @@ class _ReelViewState extends State<ReelView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const MainHeading(text: 'Report'),
+                MainHeading(text: 'Report'),
                 SizedBox(height: 10),
                 BodyText(text: 'Please select a reason'),
                 ...reportReasons
@@ -440,6 +440,12 @@ class _ReelViewState extends State<ReelView> {
         );
       },
     );
+  }
+
+  void _handleProfileTap(String userId) async {
+    context.read<model.AppState>().setCurrentlySelectedUser(userId);
+    // await _controller.pause();
+    context.router.replace(ProfileRoute());
   }
 
   @override
@@ -474,26 +480,23 @@ class _ReelViewState extends State<ReelView> {
                             child: ProfileAvatar(
                               imageUrl: user.avatarUrl,
                             ),
-                            onTap: () => {context.router.push(ProfileRoute())},
+                            onTap: () => _handleProfileTap(user.id),
                           ),
+                          SizedBox(width: 5),
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               GestureDetector(
                                 child: BodyText(
                                   text: user.fullName,
                                   textColor: Colors.white,
                                 ),
-                                onTap: () {
-                                  context
-                                      .read<model.AppState>()
-                                      .setCurrentlySelectedUser(user.id);
-                                  context.router.push(ProfileRoute());
-                                },
+                                onTap: () => _handleProfileTap(user.id),
                               ),
                               BodyText(
-                                text: widget.reel.createdAt.toString(),
+                                text: timeago.format(widget.reel.createdAt),
                                 textColor: Colors.white,
-                              ), // TODO: format it nicely
+                              ),
                             ],
                           ),
                           Expanded(child: Container()),

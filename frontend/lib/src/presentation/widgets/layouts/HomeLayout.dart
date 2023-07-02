@@ -22,7 +22,7 @@ class HomeLayout extends StatefulWidget {
 }
 
 class _HomeLayoutState extends State<HomeLayout> {
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
 
   List<Widget> pageList = [
     HomeView(),

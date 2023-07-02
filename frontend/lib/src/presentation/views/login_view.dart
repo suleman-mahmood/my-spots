@@ -17,8 +17,8 @@ import 'package:myspots/src/services/models.dart' as model;
 class LoginView extends StatelessWidget {
   LoginView({Key? key});
 
-  String email = '';
-  String password = '';
+  String email = 'sulemanmahmood99@gmail.com';
+  String password = '12341234';
 
   final _loginFormKey = GlobalKey<FormState>();
 
@@ -99,7 +99,7 @@ class LoginView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const MainHeading(text: 'Forgot your password?'),
+                MainHeading(text: 'Forgot your password?'),
                 const SizedBox(height: 10),
                 const BodyText(
                   text:

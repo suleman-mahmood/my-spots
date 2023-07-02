@@ -91,9 +91,10 @@ class AuthService {
         "Can't find logged in user using firebase's authentication service",
       );
     }
-    if (!userCredential.user!.emailVerified) {
-      throw EmailUnverified("User has not verified his email");
-    }
+    // TODO: See if you want email verified users
+    // if (!userCredential.user!.emailVerified) {
+    //   throw EmailUnverified("User has not verified his email");
+    // }
 
     await _handleAuthSuccess(context, userCredential);
 

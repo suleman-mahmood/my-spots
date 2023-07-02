@@ -1,17 +1,18 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:myspots/src/config/router/app_router.dart';
+import 'package:myspots/src/presentation/widgets/loaders/CircularLoader.dart';
 import 'package:myspots/src/services/backend.dart';
 import 'package:myspots/src/presentation/widgets/avatars/ProfileAvator.dart';
 import 'package:myspots/src/presentation/widgets/buttons/HashTagButton.dart';
 import 'package:myspots/src/presentation/widgets/buttons/RoundedIconTextButton.dart';
 import 'package:myspots/src/presentation/widgets/inputs/CommentInput.dart';
-import 'package:myspots/src/presentation/widgets/layouts/HomeLayout.dart';
 import 'package:myspots/src/presentation/widgets/typography/BodyText.dart';
 import 'package:myspots/src/presentation/widgets/typography/MainHeading.dart';
 import 'package:myspots/src/services/models.dart' as model;
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 @RoutePage()
 class ReelsView extends StatefulWidget {
@@ -28,14 +29,34 @@ class _ViewReelsScreenState extends State<ReelsView> {
   Widget build(BuildContext context) {
     final reels = context.read<model.AppState>().currentlySelectedReels;
 
-    return Expanded(
-      child: PageView.builder(
-        scrollDirection: Axis.vertical,
-        itemCount: reels.length,
-        itemBuilder: (context, index) {
-          return ReelView(reel: reels[index]);
-        },
-        controller: controller,
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Consumer<model.AppState>(builder: (context, appState, child) {
+          if (appState.isLoading) {
+            return const CircularProgressIndicator();
+          }
+          return Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: reels.length,
+                  itemBuilder: (context, index) {
+                    return ReelView(reel: reels[index]);
+                  },
+                  controller: controller,
+                ),
+              ),
+              appState.erroMessage.isNotEmpty
+                  ? BodyText(
+                      text: appState.erroMessage,
+                      textColor: Colors.red,
+                    )
+                  : const SizedBox.shrink(),
+            ],
+          );
+        }),
       ),
     );
   }
@@ -93,7 +114,7 @@ class CommentWidget extends StatelessWidget {
         }
 
         // While waiting for the future to complete
-        return const CircularProgressIndicator();
+        return const CircularLoader();
       },
     );
   }
@@ -109,7 +130,7 @@ class ReelView extends StatefulWidget {
 }
 
 class _ReelViewState extends State<ReelView> {
-  VideoPlayerController? _controller;
+  late VideoPlayerController _controller;
   String newComment = '';
   List<String> reportReasons = [
     'Animal cruelty',
@@ -125,26 +146,19 @@ class _ReelViewState extends State<ReelView> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(
-      widget.reel.videoUrl,
-    )..initialize().then((_) {
-        setState(() {});
-        _controller!.play();
-      });
 
-    // For infite play
-    // _controller!.addListener(() {
-    //   if (_controller!.value.position >= _controller!.value.duration) {
-    //     _controller!.seekTo(Duration.zero);
-    //     _controller!.play();
-    //   }
-    // });
+    _controller = VideoPlayerController.network(widget.reel.videoUrl)
+      ..initialize().then((_) async {
+        await _controller.play();
+        await _controller.setLooping(true);
+        setState(() {});
+      });
   }
 
   @override
   void dispose() {
     super.dispose();
-    _controller?.dispose();
+    _controller.dispose();
   }
 
   void _showCommentsSheet(BuildContext context) {
@@ -179,7 +193,7 @@ class _ReelViewState extends State<ReelView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const MainHeading(text: 'No comments'),
+                          MainHeading(text: 'No comments'),
                           const SizedBox(height: 10),
                           CommentInput(
                             labelText: 'Add comment...',
@@ -249,7 +263,7 @@ class _ReelViewState extends State<ReelView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const MainHeading(text: 'No comments'),
+                      MainHeading(text: 'No comments'),
                       const SizedBox(height: 10),
                       CommentInput(
                         labelText: 'Add comment...',
@@ -293,7 +307,7 @@ class _ReelViewState extends State<ReelView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const MainHeading(text: 'Report'),
+                MainHeading(text: 'Report'),
                 SizedBox(height: 10),
                 BodyText(text: 'Please select a reason'),
                 ...reportReasons
@@ -321,170 +335,180 @@ class _ReelViewState extends State<ReelView> {
     );
   }
 
+  void _handleProfileTap(String userId) async {
+    context.read<model.AppState>().setCurrentlySelectedUser(userId);
+    // await _controller.pause();
+    context.router.replace(ProfileRoute());
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: BackendService().getAnyUser(widget.reel.userId),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        }
+    return AspectRatio(
+      aspectRatio: _controller.value.aspectRatio,
+      child: Stack(
+        children: [
+          VideoPlayer(_controller),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 20,
+            ),
+            child: Column(
+              children: [
+                // Profile information and stuff
+                FutureBuilder(
+                  future: BackendService().getAnyUser(widget.reel.userId),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
 
-        // When the future completes successfully
-        if (snapshot.connectionState == ConnectionState.done) {
-          final user = snapshot.data!;
-          return Expanded(
-            child: _controller != null && _controller!.value.isInitialized
-                ? Stack(
-                    children: [
-                      AspectRatio(
-                        aspectRatio: _controller!.value.aspectRatio,
-                        child: VideoPlayer(_controller!),
-                      ),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            // Profile information and stuff
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  child: ProfileAvatar(
-                                    imageUrl: user.avatarUrl,
-                                    // 'https://images.unsplash.com/photo-1635107510862-53886e926b74?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
-                                  ),
-                                  onTap: () =>
-                                      {context.router.push(ProfileRoute())},
-                                ),
-                                Column(
-                                  children: [
-                                    GestureDetector(
-                                      child: BodyText(text: user.fullName),
-                                      onTap: () {
-                                        context
-                                            .read<model.AppState>()
-                                            .setCurrentlySelectedUser(user.id);
-                                        context.router.push(ProfileRoute());
-                                      },
-                                    ),
-                                    BodyText(
-                                      text: widget.reel.createdAt.toString(),
-                                    ), // TODO: format it nicely
-                                  ],
-                                ),
-                                Expanded(child: Container()),
-                                RoundedIconButton(
-                                    icon: Icons.person_add,
-                                    text: 'Follow',
-                                    onPressed: () {
-                                      BackendService()
-                                          .followUser(widget.reel.userId);
-                                    }),
-                              ],
+                    // When the future completes successfully
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      final user = snapshot.data!;
+                      return Row(
+                        children: [
+                          GestureDetector(
+                            child: ProfileAvatar(
+                              imageUrl: user.avatarUrl,
                             ),
-                            // All the available space for video
-                            Expanded(child: Container()),
-                            Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // tags
-                                    Row(
-                                      children: widget.reel.tags
-                                          .map<TranslucentGreyButton>(
-                                            (tag) => TranslucentGreyButton(
-                                              text: tag.tagName,
-                                              onPressed:
-                                                  () {}, // TODO: redirect to tag page
-                                            ),
-                                          )
-                                          .toList(),
-                                    ),
-                                    // description fix error here
-                                    Container(
-                                      width: 300,
-                                      child: Flexible(
-                                        child: BodyText(
-                                          text: widget.reel.description,
-                                        ),
-                                      ),
-                                    ),
-                                    // location
-                                    Row(
-                                      children: [
-                                        Icon(Icons.location_pin),
-                                        BodyText(
-                                            text: widget.reel.location
-                                                .toString()), // TODO: format it nicely into a place
-                                      ],
-                                    ),
-                                  ],
+                            onTap: () => _handleProfileTap(user.id),
+                          ),
+                          SizedBox(width: 5),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              GestureDetector(
+                                child: BodyText(
+                                  text: user.fullName,
+                                  textColor: Colors.white,
                                 ),
-                                Expanded(child: Container()),
-                                Column(
-                                  children: [
-                                    // Bookmark icon
-                                    GestureDetector(
-                                      child: Icon(
-                                        Icons.bookmark,
-                                        color: Colors.lightBlue,
-                                      ),
-                                      onTap: () => {
-                                        BackendService()
-                                            .favouriteReel(widget.reel.id)
-                                      },
-                                    ),
-                                    // Heart icon
-                                    GestureDetector(
-                                      child: Icon(
-                                        Icons.heart_broken,
-                                        color: Colors.pink,
-                                      ),
-                                      onTap: () => {
-                                        BackendService()
-                                            .likeReel(widget.reel.id),
-                                      },
-                                    ),
-                                    BodyText(
-                                      text: widget.reel.likes.toString(),
-                                      textColor: Colors.white,
-                                    ),
-                                    // Comments icon
-                                    GestureDetector(
-                                      child: Icon(
-                                        Icons.comment,
-                                        color: Colors.green,
-                                      ),
-                                      onTap: () =>
-                                          {_showCommentsSheet(context)},
-                                    ),
-                                    BodyText(
-                                        text: widget.reel.comments.toString(),
-                                        textColor: Colors.white),
-                                    // More icon
-                                    GestureDetector(
-                                      child: Icon(
-                                        Icons.report,
-                                        color: Colors.white,
-                                      ),
-                                      onTap: () => {_showReportSheet(context)},
-                                    ),
-                                  ],
-                                )
-                              ],
+                                onTap: () => _handleProfileTap(user.id),
+                              ),
+                              BodyText(
+                                text: timeago.format(widget.reel.createdAt),
+                                textColor: Colors.white,
+                              ),
+                            ],
+                          ),
+                          Expanded(child: Container()),
+                          RoundedIconButton(
+                            icon: Icons.person_add,
+                            text: 'Follow',
+                            onPressed: () {
+                              BackendService().followUser(widget.reel.userId);
+                            },
+                          ),
+                        ],
+                      );
+                    }
+
+                    return const CircularLoader();
+                  },
+                ),
+                // All the available space for video
+                Expanded(child: Container()),
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // tags
+                        Row(
+                          children: widget.reel.tags
+                              .map<TranslucentGreyButton>(
+                                (tag) => TranslucentGreyButton(
+                                  text: tag.tagName,
+                                  onPressed:
+                                      () {}, // TODO: redirect to tag page
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        // description fix error here
+                        Container(
+                          width: 300,
+                          child: Flexible(
+                            child: BodyText(
+                              text: widget.reel.description,
+                              textColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                        // location
+                        Row(
+                          children: [
+                            Icon(Icons.location_pin, color: Colors.white),
+                            BodyText(
+                              text: widget.reel.spotName,
+                              textColor: Colors.white,
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  )
-                : Center(child: CircularProgressIndicator()),
-          );
-        }
+                      ],
+                    ),
+                    Expanded(child: Container()),
+                    Column(
+                      children: [
+                        // Bookmark icon
+                        GestureDetector(
+                          child: Icon(
+                            Icons.bookmark,
+                            color: Colors.lightBlue,
+                          ),
+                          onTap: () =>
+                              {BackendService().favouriteReel(widget.reel.id)},
+                        ),
+                        SizedBox(height: 10),
 
-        return Center(child: CircularProgressIndicator());
-      },
+                        // Heart icon
+                        GestureDetector(
+                          child: Icon(
+                            Icons.heart_broken,
+                            color: Colors.pink,
+                          ),
+                          onTap: () => {
+                            BackendService().likeReel(widget.reel.id),
+                          },
+                        ),
+                        BodyText(
+                          text: widget.reel.likes.toString(),
+                          textColor: Colors.white,
+                        ),
+
+                        SizedBox(height: 10),
+                        // Comments icon
+                        GestureDetector(
+                          child: Icon(
+                            Icons.comment,
+                            color: Colors.green,
+                          ),
+                          onTap: () => {_showCommentsSheet(context)},
+                        ),
+                        BodyText(
+                          text: widget.reel.comments.toString(),
+                          textColor: Colors.white,
+                        ),
+
+                        SizedBox(height: 10),
+                        // More icon
+                        GestureDetector(
+                          child: Icon(
+                            Icons.report,
+                            color: Colors.white,
+                          ),
+                          onTap: () => {_showReportSheet(context)},
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

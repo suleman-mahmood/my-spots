@@ -53,13 +53,19 @@ class _ProfileScreenState extends State<ProfileView> {
                 return Column(
                   children: [
                     Flexible(
-                      child: Column(
-                        children: [
-                          buildProfileRow(user),
-                          buildSegmentedButton(),
-                          buildPostsOrAboutSection(
-                              currentlySelectedUserId, user),
-                        ],
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                        child: Column(
+                          children: [
+                            buildProfileRow(user),
+                            SizedBox(height: 10),
+                            buildSegmentedButton(),
+                            SizedBox(height: 10),
+                            buildPostsOrAboutSection(
+                                currentlySelectedUserId, user),
+                          ],
+                        ),
                       ),
                     ),
                     appState.erroMessage.isNotEmpty

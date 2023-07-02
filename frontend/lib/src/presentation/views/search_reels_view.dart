@@ -28,19 +28,23 @@ class _SearchScreenState extends State<SearchReelsView> {
     final user = context.read<model.User>();
 
     return Flexible(
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const Expanded(
-                  child: MainHeading(text: 'What do you want to explore?')),
-              ProfileAvatar(imageUrl: user.avatarUrl),
-            ],
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: TextInput(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                    child: MainHeading(
+                  text: 'What do you want to explore?',
+                  textAlign: TextAlign.start,
+                )),
+                ProfileAvatar(imageUrl: user.avatarUrl),
+              ],
+            ),
+            SizedBox(height: 10),
+            TextInput(
               labelText: 'Search',
               prefixIcon: Icon(Icons.search),
               onChanged: (value) => {
@@ -60,11 +64,11 @@ class _SearchScreenState extends State<SearchReelsView> {
                   }
               },
             ),
-          ),
-          isSearching
-              ? Expanded(child: BuildSearchResults(searchText: searchText))
-              : Expanded(child: BuildExploreReels()),
-        ],
+            isSearching
+                ? Expanded(child: BuildSearchResults(searchText: searchText))
+                : Expanded(child: BuildExploreReels()),
+          ],
+        ),
       ),
     );
   }
@@ -169,41 +173,43 @@ class BuildExploreReels extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        MainHeading(text: 'Tags'),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              FutureBuilder<List<model.Tag>>(
-                future: BackendService().getAllTags(),
-                builder: (context, snapshot) {
-                  // If an error occurred while fetching data
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
+        // MainHeading(text: 'Tags'),
+        // SingleChildScrollView(
+        //   scrollDirection: Axis.horizontal,
+        //   child: Row(
+        //     children: [
+        //       FutureBuilder<List<model.Tag>>(
+        //         future: BackendService().getAllTags(),
+        //         builder: (context, snapshot) {
+        //           // If an error occurred while fetching data
+        //           if (snapshot.hasError) {
+        //             return Text('Error: ${snapshot.error}');
+        //           }
 
-                  // When the future completes successfully
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    final tags = snapshot.data!;
-                    return Row(
-                      children: tags
-                          .map((tag) => CategoryButton(
-                                onPressed: () {},
-                                icon: Icons.food_bank,
-                                text: tag.tagName,
-                              ))
-                          .toList(),
-                    );
-                  }
+        //           // When the future completes successfully
+        //           if (snapshot.connectionState == ConnectionState.done) {
+        //             final tags = snapshot.data!;
+        //             return Row(
+        //               children: tags
+        //                   .map((tag) => CategoryButton(
+        //                         onPressed: () {},
+        //                         icon: Icons.food_bank,
+        //                         text: tag.tagName,
+        //                       ))
+        //                   .toList(),
+        //             );
+        //           }
 
-                  // While waiting for the future to complete
-                  return const CircularLoader();
-                },
-              ),
-            ],
-          ),
-        ),
+        //           // While waiting for the future to complete
+        //           return const CircularLoader();
+        //         },
+        //       ),
+        //     ],
+        //   ),
+        // ),
+        SizedBox(height: 10),
         MainHeading(text: 'Nearest to you'),
+        SizedBox(height: 10),
         // SingleChildScrollView(
         //   scrollDirection: Axis.horizontal,
         //   child: Row(
