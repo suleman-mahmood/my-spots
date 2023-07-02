@@ -38,6 +38,9 @@ To run ngrok and host your localhost:
 
 run `dart fix` to fix all warning and issues
 
+### Release
+run `flutter build appbundle` on frontend directory to create an android app bundle
+
 ### Generating keyfile
 
 password: awesome
