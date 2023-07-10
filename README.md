@@ -26,7 +26,7 @@ To deploy the app to gcloud:
 ### Development
 
 To run the flask server locally:
-`flask --app flask_app --debug run`
+`flask --app my_spots.api.flask_app --debug run`
 
 To connect to the postgresql db using psql:
 `sudo -u postgres psql my_spots`
