@@ -11,13 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:myspots/src/services/models.dart' as model;
 
 @RoutePage()
-class FinalStepView extends StatelessWidget {
-  String tags = '';
-  String description = '';
-  String caption = '';
-  String spotName = '';
-
-  final _loginFormKey = GlobalKey<FormState>();
+class FinalStepView extends StatefulWidget {
   final String videoUrl;
   final String thumbnailUrl;
 
@@ -26,6 +20,18 @@ class FinalStepView extends StatelessWidget {
     required this.videoUrl,
     required this.thumbnailUrl,
   });
+
+  @override
+  State<FinalStepView> createState() => _FinalStepViewState();
+}
+
+class _FinalStepViewState extends State<FinalStepView> {
+  String tags = '';
+  String description = '';
+  String caption = '';
+  String spotName = '';
+
+  final _loginFormKey = GlobalKey<FormState>();
 
   Future<void> _submit(BuildContext context) async {
     if (!_loginFormKey.currentState!.validate()) {
@@ -38,10 +44,10 @@ class FinalStepView extends StatelessWidget {
 
     await BackendService().createReel(
       model.Reel(
-        videoUrl: videoUrl,
+        videoUrl: widget.videoUrl,
         caption: caption,
         description: description,
-        thumbnailUrl: thumbnailUrl,
+        thumbnailUrl: widget.thumbnailUrl,
         location: location,
         spotName: spotName,
       ),
@@ -84,74 +90,76 @@ class FinalStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Center(
-        child: SizedBox(
-          width: 250,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              MainHeading(text: 'Enter spot info below to post reel!'),
-              const SizedBox(height: 20),
-              Form(
-                key: _loginFormKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextInput(
-                      labelText: 'Tags',
-                      isTextBox: true,
-                      prefixIcon: Icon(Icons.tag_outlined),
-                      onChanged: (v) => tags = v,
-                      validator: (v) {
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextInput(
-                      labelText: 'Description',
-                      isTextBox: true,
-                      prefixIcon: Icon(Icons.description_outlined),
-                      onChanged: (v) => description = v,
-                      validator: (v) {
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextInput(
-                      labelText: 'Caption',
-                      prefixIcon: Icon(Icons.closed_caption_outlined),
-                      onChanged: (v) => caption = v,
-                      validator: (v) {
-                        if (v == null) {
-                          return "Please enter caption for your spot";
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextInput(
-                      labelText: 'Spot name',
-                      prefixIcon: Icon(Icons.location_pin),
-                      onChanged: (v) => spotName = v,
-                      validator: (v) {
-                        if (v == null) {
-                          return "Please enter name of your spot";
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    PrimaryButton(
-                      buttonText: 'Post Reel',
-                      onPressed: () => _submit(context),
-                    ),
-                  ],
+    return SafeArea(
+      child: Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 250,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                MainHeading(text: 'Enter spot info below to post reel!'),
+                const SizedBox(height: 20),
+                Form(
+                  key: _loginFormKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextInput(
+                        labelText: 'Tags',
+                        isTextBox: true,
+                        prefixIcon: Icon(Icons.tag_outlined),
+                        onChanged: (v) => tags = v,
+                        validator: (v) {
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextInput(
+                        labelText: 'Description',
+                        isTextBox: true,
+                        prefixIcon: Icon(Icons.description_outlined),
+                        onChanged: (v) => description = v,
+                        validator: (v) {
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextInput(
+                        labelText: 'Caption',
+                        prefixIcon: Icon(Icons.closed_caption_outlined),
+                        onChanged: (v) => caption = v,
+                        validator: (v) {
+                          if (v == null) {
+                            return "Please enter caption for your spot";
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextInput(
+                        labelText: 'Spot name',
+                        prefixIcon: Icon(Icons.location_pin),
+                        onChanged: (v) => spotName = v,
+                        validator: (v) {
+                          if (v == null) {
+                            return "Please enter name of your spot";
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      PrimaryButton(
+                        buttonText: 'Post Reel',
+                        onPressed: () => _submit(context),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -10,11 +10,11 @@ from .utils import authenticate_token, jsonify_reel
 app = Flask(__name__)
 PREFIX = "/api/v1"
 
-# cred = credentials.Certificate("my-spots-1-firebase-adminsdk-f0m7r-477a5cec8d.json")
-# firebase_admin.initialize_app(cred)
+cred = credentials.Certificate("my-spots-1-firebase-adminsdk-f0m7r-477a5cec8d.json")
+firebase_admin.initialize_app(cred)
 
 # Or this in app engine
-default_app = firebase_admin.initialize_app()
+# default_app = firebase_admin.initialize_app()
 
 # 200 OK
 # The request succeeded. The result meaning of "success" depends on the HTTP method:

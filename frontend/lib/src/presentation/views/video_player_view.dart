@@ -29,7 +29,7 @@ class _VideoPlayerPageState extends State<VideoPlayerView> {
   void initState() {
     _controller = VideoPlayerController.file(File(widget.videoPath))
       ..initialize().then((_) async {
-        await _controller.setLooping(true);
+        // await _controller.setLooping(true);
         await _controller.play();
         setState(() {});
       });
@@ -46,11 +46,14 @@ class _VideoPlayerPageState extends State<VideoPlayerView> {
   Future<void> _saveVideo(BuildContext context) async {
     context.read<model.AppState>().startLoading();
 
-    final videoPath = await compressVideo(widget.videoPath);
+    // final videoPath = await compressVideo(widget.videoPath);
+    final videoPath = widget.videoPath;
     final outputThumbnailPath = await generateVideoThumbnail(videoPath);
+    print('Printing outputThumbnailPath');
+    print(outputThumbnailPath);
 
     // Save video to gallery (optional)
-    await GallerySaver.saveVideo(videoPath);
+    // await GallerySaver.saveVideo(videoPath);
 
     final videosRef = storageRef.child(videoPath.split('/').last);
     final thumbnailRef = storageRef.child(outputThumbnailPath.split('/').last);
@@ -58,9 +61,9 @@ class _VideoPlayerPageState extends State<VideoPlayerView> {
     File file = File(videoPath);
     File thumbnailFile = File(outputThumbnailPath);
 
-    print("Displaying logs");
-    print(thumbnailFile);
-    print(outputThumbnailPath);
+    // print("Displaying logs");
+    // print(thumbnailFile);
+    // print(outputThumbnailPath);
 
     try {
       await videosRef.putFile(file);
@@ -74,8 +77,10 @@ class _VideoPlayerPageState extends State<VideoPlayerView> {
 
     context.read<model.AppState>().stopLoading();
 
-    context.router.push(
-        FinalStepRoute(videoUrl: downloadUrl, thumbnailUrl: thumbnailUrl));
+    if (context.mounted) {
+      context.router.push(
+          FinalStepRoute(videoUrl: downloadUrl, thumbnailUrl: thumbnailUrl));
+    }
   }
 
   Future<String> compressVideo(String videoPath) async {
@@ -115,9 +120,10 @@ class _VideoPlayerPageState extends State<VideoPlayerView> {
   Widget build(BuildContext context) {
     return Column(children: [
       Expanded(
-          child: Container(
-        color: Colors.black,
-      )),
+        child: Container(
+          color: Colors.black,
+        ),
+      ),
       Stack(
         alignment: Alignment.bottomRight,
         children: <Widget>[

@@ -103,10 +103,10 @@ class TakeVideoScreenState extends State<TakeVideoScreen> {
                       children: [
                         GestureDetector(
                           onLongPress: () async {
-                            await startVideoRecording();
                             setState(() {
                               isRecording = true;
                             });
+                            await startVideoRecording();
                           },
                           onLongPressUp: () {
                             setState(() {
