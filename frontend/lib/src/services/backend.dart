@@ -8,10 +8,10 @@ class BackendService {
   // final String apiUrl = 'http://10.0.2.2:5000/api/v1';
 
   // For Ngrok, development
-  final String apiUrl = 'https://6cb0-110-93-234-10.ngrok-free.app/api/v1';
+  // final String apiUrl = 'https://6cb0-110-93-234-10.ngrok-free.app/api/v1';
 
   // For deployment in GCP
-  // final String apiUrl = 'https://my-spots-1.uk.r.appspot.com/api/v1';
+  final String apiUrl = 'https://my-spots-1.uk.r.appspot.com/api/v1';
 
   Future<void> checkApi() async {
     final url = Uri.parse('$apiUrl');
