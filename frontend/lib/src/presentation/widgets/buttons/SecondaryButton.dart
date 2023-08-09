@@ -15,6 +15,7 @@ class SecondaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.all(12),
         backgroundColor: Colors.white, // background color of the button
         foregroundColor: secondaryColor1, // font color of the button
         shape: RoundedRectangleBorder(
@@ -22,7 +23,10 @@ class SecondaryButton extends StatelessWidget {
         ),
       ),
       onPressed: onPressed,
-      child: Text(buttonText),
+      child: Text(
+        buttonText,
+        textScaleFactor: 1.5,
+      ),
     );
   }
 }

@@ -44,25 +44,29 @@ class _SearchScreenState extends State<SearchReelsView> {
               ],
             ),
             SizedBox(height: 10),
-            TextInput(
-              labelText: 'Search',
-              prefixIcon: Icon(Icons.search),
-              onChanged: (value) => {
-                if (value.isNotEmpty)
-                  {
-                    setState(() {
-                      isSearching = true;
-                      searchText = value;
-                    })
-                  }
-                else
-                  {
-                    setState(() {
-                      isSearching = false;
-                      searchText = '';
-                    })
-                  }
-              },
+            Material(
+              elevation: 3,
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+              child: TextInput(
+                labelText: 'Search',
+                prefixIcon: Icon(Icons.search),
+                onChanged: (value) => {
+                  if (value.isNotEmpty)
+                    {
+                      setState(() {
+                        isSearching = true;
+                        searchText = value;
+                      })
+                    }
+                  else
+                    {
+                      setState(() {
+                        isSearching = false;
+                        searchText = '';
+                      })
+                    }
+                },
+              ),
             ),
             isSearching
                 ? Expanded(child: BuildSearchResults(searchText: searchText))

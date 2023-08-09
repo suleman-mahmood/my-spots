@@ -81,45 +81,61 @@ class SignupView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextInput(
-                labelText: 'Full name',
-                prefixIcon: Icon(Icons.account_circle_outlined),
-                onChanged: (v) => fullName = v,
-                validator: (nameValue) {
-                  if (nameValue == null) {
-                    return "Please enter your name";
-                  }
-                  return null;
-                },
+              Material(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                elevation: 3,
+                child: TextInput(
+                  labelText: 'Full name',
+                  prefixIcon: Icon(Icons.account_circle_outlined),
+                  onChanged: (v) => fullName = v,
+                  validator: (nameValue) {
+                    if (nameValue == null) {
+                      return "Please enter your name";
+                    }
+                    return null;
+                  },
+                ),
               ),
               const SizedBox(height: 10),
-              TextInput(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email_outlined),
-                onChanged: (v) => email = v,
-                validator: (emailValue) {
-                  if (emailValue == null) {
-                    return "Please enter your email";
-                  }
-                  return null;
-                },
+              Material(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                elevation: 3,
+                child: TextInput(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email_outlined),
+                  onChanged: (v) => email = v,
+                  validator: (emailValue) {
+                    if (emailValue == null) {
+                      return "Please enter your email";
+                    }
+                    return null;
+                  },
+                ),
               ),
               const SizedBox(height: 10),
-              TextInput(
-                labelText: 'Password',
-                prefixIcon: Icon(Icons.lock_outlined),
-                onChanged: (v) => password = v,
-                validator: (passwordValue) {
-                  if (passwordValue == null) {
-                    return "Please enter your password";
-                  }
-                  return null;
-                },
+              Material(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                elevation: 3,
+                child: TextInput(
+                  labelText: 'Password',
+                  prefixIcon: Icon(Icons.lock_outlined),
+                  onChanged: (v) => password = v,
+                  validator: (passwordValue) {
+                    if (passwordValue == null) {
+                      return "Please enter your password";
+                    }
+                    return null;
+                  },
+                ),
               ),
-              const SizedBox(height: 10),
-              PrimaryButton(
-                buttonText: 'Sign Up',
-                onPressed: () => _submit(context),
+              const SizedBox(height: 16),
+              Material(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                elevation: 3,
+                child: PrimaryButton(
+                  buttonText: 'Sign Up',
+                  onPressed: () => _submit(context),
+                ),
               ),
             ],
           ),

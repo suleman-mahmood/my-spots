@@ -143,28 +143,36 @@ class LoginView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextInput(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email_outlined),
-                onChanged: (v) => email = v,
-                validator: (emailValue) {
-                  if (emailValue == null) {
-                    return "Please enter your email";
-                  }
-                  return null;
-                },
+              Material(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                elevation: 3,
+                child: TextInput(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email_outlined),
+                  onChanged: (v) => email = v,
+                  validator: (emailValue) {
+                    if (emailValue == null) {
+                      return "Please enter your email";
+                    }
+                    return null;
+                  },
+                ),
               ),
               const SizedBox(height: 10),
-              TextInput(
-                labelText: 'Password',
-                prefixIcon: Icon(Icons.lock_outlined),
-                onChanged: (v) => password = v,
-                validator: (passwordValue) {
-                  if (passwordValue == null) {
-                    return "Please enter your password";
-                  }
-                  return null;
-                },
+              Material(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                elevation: 3,
+                child: TextInput(
+                  labelText: 'Password',
+                  prefixIcon: Icon(Icons.lock_outlined),
+                  onChanged: (v) => password = v,
+                  validator: (passwordValue) {
+                    if (passwordValue == null) {
+                      return "Please enter your password";
+                    }
+                    return null;
+                  },
+                ),
               ),
               const SizedBox(height: 10),
               LinkText(
@@ -173,9 +181,13 @@ class LoginView extends StatelessWidget {
                 onPressed: () => _showForgotPasswordSheet(context),
               ),
               const SizedBox(height: 10),
-              PrimaryButton(
-                buttonText: 'Login',
-                onPressed: () => _submit(context),
+              Material(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                elevation: 3,
+                child: PrimaryButton(
+                  buttonText: 'Login',
+                  onPressed: () => _submit(context),
+                ),
               ),
             ],
           ),
@@ -225,7 +237,7 @@ class LoginView extends StatelessWidget {
         // ),
         //   ],
         // ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 56),
         Wrap(
           alignment: WrapAlignment.center,
           children: [

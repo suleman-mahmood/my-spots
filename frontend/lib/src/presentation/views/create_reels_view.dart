@@ -98,10 +98,16 @@ class TakeVideoScreenState extends State<TakeVideoScreen> {
                 children: [
                   CameraPreview(_controller),
                   Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        GestureDetector(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: AnimatedSwitcher(
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          return ScaleTransition(
+                              scale: animation, child: child);
+                        },
+                        duration: Duration(seconds: 2),
+                        child: GestureDetector(
                           onLongPress: () async {
                             setState(() {
                               isRecording = true;
@@ -114,31 +120,49 @@ class TakeVideoScreenState extends State<TakeVideoScreen> {
                             });
                             stopVideoRecording(context);
                           },
-                          child: isRecording
-                              ? Icon(
-                                  Icons.stop,
-                                  size: 80,
-                                  color: Colors.red,
-                                )
-                              : Icon(
-                                  Icons.fiber_manual_record,
-                                  size: 80,
-                                  color: Colors.red,
-                                ),
-                        ),
-                        GestureDetector(
-                          child: Icon(
-                            Icons.browse_gallery_outlined,
-                            size: 80,
-                            color: Colors.green,
+                          child: AnimatedSwitcher(
+                            duration: Duration(seconds: 1),
+                            switchInCurve: Curves.easeInOut,
+                            switchOutCurve: Curves.easeInOut,
+                            transitionBuilder:
+                                (Widget child, Animation<double> animation) {
+                              return ScaleTransition(
+                                  scale: animation, child: child);
+                            },
+                            child: isRecording
+                                ? Icon(
+                                    key: ValueKey<bool>(true),
+                                    Icons.camera,
+                                    size: 80,
+                                    color: Colors.red[200],
+                                  )
+                                : Icon(
+                                    key: ValueKey<bool>(false),
+                                    Icons.camera_outlined,
+                                    size: 64,
+                                    color: Colors.white,
+                                  ),
                           ),
-                          onTap: () {
-                            pickVideo(context);
-                          },
-                        )
-                      ],
+                        ),
+                      ),
                     ),
                   ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 8, 8),
+                      child: GestureDetector(
+                        child: Icon(
+                          Icons.add_to_photos_outlined,
+                          size: 48,
+                          color: Colors.white,
+                        ),
+                        onTap: () {
+                          pickVideo(context);
+                        },
+                      ),
+                    ),
+                  )
                 ],
               );
             } else {

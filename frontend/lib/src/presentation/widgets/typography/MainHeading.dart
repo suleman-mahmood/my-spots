@@ -14,9 +14,11 @@ class MainHeading extends StatelessWidget {
       textAlign: textAlign ?? TextAlign.center,
       style: TextStyle(
         color: secondaryColor1,
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: FontWeight.bold,
       ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

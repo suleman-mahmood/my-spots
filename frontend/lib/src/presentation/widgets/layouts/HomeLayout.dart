@@ -7,6 +7,7 @@ import 'package:myspots/src/presentation/views/saved_view.dart';
 import 'package:myspots/src/presentation/views/search_reels_view.dart';
 import 'package:myspots/src/presentation/widgets/typography/BodyText.dart';
 import 'package:provider/provider.dart';
+import 'package:dot_navigation_bar/dot_navigation_bar.dart';
 import 'package:myspots/src/services/models.dart' as model;
 
 class HomeLayout extends StatefulWidget {
@@ -42,7 +43,8 @@ class _HomeLayoutState extends State<HomeLayout> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: widget.backgroundColor,
+        backgroundColor:
+            _selectedIndex == 2 ? Colors.black : widget.backgroundColor,
         body: Consumer<model.AppState>(builder: (context, appState, child) {
           if (appState.isLoading) {
             return const CircularProgressIndicator();
@@ -62,32 +64,39 @@ class _HomeLayoutState extends State<HomeLayout> {
             ],
           );
         }),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+        bottomNavigationBar: DotNavigationBar(
+          marginR: const EdgeInsets.only(bottom: 0),
+          splashColor: Colors.orange[200],
+          enablePaddingAnimation: false,
+          borderRadius: 0,
+          backgroundColor:
+              _selectedIndex == 2 ? Colors.grey[700] : Colors.white,
+          items: [
+            DotNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              selectedColor: Colors.orange[200],
             ),
-            BottomNavigationBarItem(
+            DotNavigationBarItem(
               icon: Icon(Icons.search),
-              label: 'Search',
+              selectedColor: Colors.orange[200],
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.add),
-              label: '',
+            DotNavigationBarItem(
+              icon: Icon(Icons.camera_alt_outlined),
+              selectedColor: Colors.orange[200],
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.save),
-              label: 'Saved',
+            DotNavigationBarItem(
+              icon: Icon(Icons.save_as_outlined),
+              selectedColor: Colors.orange[200],
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
+            DotNavigationBarItem(
+              icon: Icon(Icons.person_outlined),
+              selectedColor: Colors.orange[200],
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Colors.amber[800],
-          unselectedItemColor: Colors.black,
+          selectedItemColor: Colors.amber[200],
+          unselectedItemColor:
+              _selectedIndex == 2 ? Colors.white : Colors.black,
           onTap: _onItemTapped,
         ),
       ),

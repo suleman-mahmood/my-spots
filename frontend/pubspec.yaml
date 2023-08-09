@@ -56,6 +56,12 @@ dependencies:
     auto_route: ^7.6.0
     timeago: ^3.4.0
 
+    # UI elements
+    dot_navigation_bar: ^1.0.2
+    progress_state_button: ^1.0.4
+    toggle_switch: ^2.1.0
+    flutter_hooks: ^0.20.0
+
 dev_dependencies:
     flutter_test:
         sdk: flutter

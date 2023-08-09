@@ -15,6 +15,7 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.all(12),
         backgroundColor: secondaryColor1, // background color of the button
         foregroundColor: Colors.white, // font color of the button
         shape: RoundedRectangleBorder(
@@ -22,7 +23,10 @@ class PrimaryButton extends StatelessWidget {
         ),
       ),
       onPressed: onPressed,
-      child: Text(buttonText),
+      child: Text(
+        buttonText,
+        textScaleFactor: 1.5,
+      ),
     );
   }
 }

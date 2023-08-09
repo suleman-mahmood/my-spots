@@ -28,25 +28,34 @@ class WelcomeView extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w900,
-                  fontSize: 36,
+                  fontSize: 56,
                 )),
             Text(
               ' Spot',
               style: TextStyle(
                 color: secondaryColor1,
                 fontWeight: FontWeight.w900,
-                fontSize: 36,
+                fontSize: 56,
               ),
             ),
           ],
+        ),
+        const SizedBox(
+          height: 24,
         ),
         PrimaryButton(
           buttonText: "Login",
           onPressed: () => {context.router.push(LoginRoute())},
         ),
+        const SizedBox(
+          height: 16,
+        ),
         SecondaryButton(
           buttonText: "Create new account",
           onPressed: () => {context.router.push(SignupRoute())},
+        ),
+        const SizedBox(
+          height: 8,
         ),
         Wrap(
           alignment: WrapAlignment.center,

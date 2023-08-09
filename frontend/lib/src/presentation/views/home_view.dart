@@ -1,3 +1,6 @@
+import 'dart:ffi';
+import 'dart:math';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:myspots/src/config/router/app_router.dart';
@@ -14,6 +17,8 @@ import 'package:myspots/src/services/models.dart' as model;
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:toggle_switch/toggle_switch.dart';
+import 'package:progress_state_button/progress_button.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 enum ReelsType { explore, following }
@@ -40,25 +45,39 @@ class _HomeScreenState extends State<HomeView> {
       ),
       builder: (BuildContext context) {
         return SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                MainHeading(text: 'Enable your location?'),
-                const SizedBox(height: 10),
-                const BodyText(
-                  text:
-                      'This application requires that your location services are turned on to find the best Spots near you.',
-                ),
-                const SizedBox(height: 10),
-                PrimaryButton(
-                  buttonText: 'Enable',
-                  onPressed: () => handleLocationRequest(),
-                ),
-              ],
+          child: Column(children: [
+            Container(
+              height: 200,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(40),
+                    topRight: Radius.circular(40)),
+                image: DecorationImage(
+                    image: NetworkImage(
+                        "https://i.ibb.co/x8YjfWf/Screenshot-from-2023-08-08-18-02-38.png"),
+                    fit: BoxFit.cover),
+              ),
             ),
-          ),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 50),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  MainHeading(text: 'Enable your location?'),
+                  const SizedBox(height: 10),
+                  const BodyText(
+                    text:
+                        'This application requires that your location services are turned on to find the best Spots near you.',
+                  ),
+                  const SizedBox(height: 10),
+                  PrimaryButton(
+                    buttonText: 'Enable',
+                    onPressed: () => handleLocationRequest(),
+                  ),
+                ],
+              ),
+            ),
+          ]),
         );
       },
     );
@@ -120,48 +139,55 @@ class _HomeScreenState extends State<HomeView> {
             },
           ),
           // Explore and following toggle buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: SegmentedButton<ReelsType>(
-                  segments: const <ButtonSegment<ReelsType>>[
-                    ButtonSegment<ReelsType>(
-                      value: ReelsType.explore,
-                      label: Padding(
-                        padding: EdgeInsets.only(left: 15.0),
-                        child: BodyText(text: 'Explore'),
-                      ),
+          Padding(
+            padding: EdgeInsets.only(top: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Container(
+                    padding: const EdgeInsets.all(2.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                      color: Color(0xFFD9D9D9).withOpacity(0.6),
                     ),
-                    ButtonSegment<ReelsType>(
-                      value: ReelsType.following,
-                      label: Padding(
-                        padding: EdgeInsets.only(right: 15.0),
-                        child: BodyText(text: 'Following'),
-                      ),
-                    ),
-                  ],
-                  selected: <ReelsType>{reelsTypeView},
-                  onSelectionChanged: (Set<ReelsType> newSelection) {
-                    setState(() {
-                      reelsTypeView = newSelection.first;
-                    });
-                  },
-                  showSelectedIcon: false,
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.selected)) {
-                          return Colors.yellow.withOpacity(0.4);
+                    child: ToggleSwitch(
+                      minWidth: 80.0,
+                      minHeight: 32,
+                      cornerRadius: 20.0,
+                      activeBgColors: [
+                        [Color(0xFFFCD443)!.withOpacity(0.7)],
+                        [Color(0xFFFCD443)!.withOpacity(0.7)],
+                      ],
+                      activeFgColor: Colors.black,
+                      inactiveBgColor: Colors.transparent,
+                      inactiveFgColor: Colors.white,
+                      initialLabelIndex:
+                          reelsTypeView == ReelsType.explore ? 0 : 1,
+                      totalSwitches: 2,
+                      labels: ['Explore', 'Followed'],
+                      radiusStyle: true,
+                      animate: true,
+                      animationDuration: 500,
+                      onToggle: (index) {
+                        if (index == 0) {
+                          setState(() {
+                            reelsTypeView = ReelsType.explore;
+                          });
+                          // print('Reels Type changed to Explore');
+                        } else {
+                          setState(() {
+                            reelsTypeView = ReelsType.following;
+                          });
+                          // print('Reels Type changed to Explore');
                         }
-                        return Colors.grey.withOpacity(0.4);
                       },
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -279,29 +305,73 @@ class _ReelViewState extends State<ReelView> {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return FutureBuilder(
-            future: BackendService().getReelComments(widget.reel.id),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              }
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: FutureBuilder(
+              future: BackendService().getReelComments(widget.reel.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
 
-              // When the future completes successfully
-              if (snapshot.connectionState == ConnectionState.done) {
-                final comments = snapshot.data!;
+                // When the future completes successfully
+                if (snapshot.connectionState == ConnectionState.done) {
+                  final comments = snapshot.data!;
 
-                if (comments.isEmpty) {
+                  if (comments.isEmpty) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 30,
+                        horizontal: 50,
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            MainHeading(text: 'No comments'),
+                            const SizedBox(height: 10),
+                            CommentInput(
+                              labelText: 'Add comment...',
+                              prefixIcon:
+                                  const Icon(Icons.comment_bank_outlined),
+                              onChanged: (v) => newComment = v,
+                              validator: (commentValue) {
+                                if (commentValue == null) {
+                                  return "Please enter a comment";
+                                }
+                                return null;
+                              },
+                              onSubmit: () {
+                                BackendService().commentReel(
+                                  widget.reel.id,
+                                  newComment,
+                                );
+                                setState(() {
+                                  widget.reel.comments =
+                                      widget.reel.comments + 1;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
                   return Container(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 30,
-                      horizontal: 50,
-                    ),
+                        vertical: 30, horizontal: 50),
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          MainHeading(text: 'No comments'),
+                          MainHeading(text: '${widget.reel.comments} comments'),
                           const SizedBox(height: 10),
+                          ...comments
+                              .map((comm) => CommentWidget(comment: comm))
+                              .toList(),
                           CommentInput(
                             labelText: 'Add comment...',
                             prefixIcon: const Icon(Icons.comment_bank_outlined),
@@ -325,18 +395,18 @@ class _ReelViewState extends State<ReelView> {
                   );
                 }
 
-                return Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
-                  child: SingleChildScrollView(
+                // While waiting for the future to complete
+                return SingleChildScrollView(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 30,
+                      horizontal: 50,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        MainHeading(text: '${widget.reel.comments} comments'),
+                        MainHeading(text: 'No comments'),
                         const SizedBox(height: 10),
-                        ...comments
-                            .map((comm) => CommentWidget(comment: comm))
-                            .toList(),
                         CommentInput(
                           labelText: 'Add comment...',
                           prefixIcon: const Icon(Icons.comment_bank_outlined),
@@ -352,48 +422,21 @@ class _ReelViewState extends State<ReelView> {
                               widget.reel.id,
                               newComment,
                             );
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Comment added Successfully!"),
+                              duration: Duration(seconds: 5),
+                            ));
+                            Future.delayed(Duration(seconds: 5), () {
+                              Navigator.pop(context);
+                            });
                           },
                         ),
                       ],
                     ),
                   ),
                 );
-              }
-
-              // While waiting for the future to complete
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 30,
-                  horizontal: 50,
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      MainHeading(text: 'No comments'),
-                      const SizedBox(height: 10),
-                      CommentInput(
-                        labelText: 'Add comment...',
-                        prefixIcon: const Icon(Icons.comment_bank_outlined),
-                        onChanged: (v) => newComment = v,
-                        validator: (commentValue) {
-                          if (commentValue == null) {
-                            return "Please enter a comment";
-                          }
-                          return null;
-                        },
-                        onSubmit: () {
-                          BackendService().commentReel(
-                            widget.reel.id,
-                            newComment,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            });
+              }),
+        );
       },
     );
   }
@@ -482,14 +525,17 @@ class _ReelViewState extends State<ReelView> {
                             ),
                             onTap: () => _handleProfileTap(user.id),
                           ),
-                          SizedBox(width: 5),
+                          SizedBox(width: 8),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               GestureDetector(
-                                child: BodyText(
-                                  text: user.fullName,
-                                  textColor: Colors.white,
+                                child: Text(
+                                  user.fullName.split(' ').first,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 22),
                                 ),
                                 onTap: () => _handleProfileTap(user.id),
                               ),
@@ -516,101 +562,145 @@ class _ReelViewState extends State<ReelView> {
                 ),
                 // All the available space for video
                 Expanded(child: Container()),
-                Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // tags
-                        Row(
-                          children: widget.reel.tags
-                              .map<TranslucentGreyButton>(
-                                (tag) => TranslucentGreyButton(
-                                  text: tag.tagName,
-                                  onPressed:
-                                      () {}, // TODO: redirect to tag page
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        // mainAxisAlignment: MainAxisAlignment.e                                                                                                                                                                                                                                                                                                                                                                                nd,
+                        children: [
+                          // tags
+                          Row(
+                            children: widget.reel.tags
+                                .map<TranslucentGreyButton>(
+                                  (tag) => TranslucentGreyButton(
+                                    text: tag.tagName,
+                                    onPressed:
+                                        () {}, // TODO: redirect to tag page
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                          // description fix error here
+                          Container(
+                            width: 300,
+                            child: Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(4, 0, 0, 4),
+                                child: Text(
+                                  widget.reel.description,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      height: 1.5,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14),
+                                  textAlign: TextAlign.left,
                                 ),
-                              )
-                              .toList(),
-                        ),
-                        // description fix error here
-                        Container(
-                          width: 300,
-                          child: Flexible(
-                            child: BodyText(
-                              text: widget.reel.description,
-                              textColor: Colors.white,
+                              ),
                             ),
                           ),
-                        ),
-                        // location
-                        Row(
-                          children: [
-                            Icon(Icons.location_pin, color: Colors.white),
-                            BodyText(
-                              text: widget.reel.spotName,
-                              textColor: Colors.white,
+                          // location
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                              Text(
+                                widget.reel.spotName,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18 * 1.25),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Expanded(child: Container()),
+                      Column(
+                        children: [
+                          // Bookmark
+                          GestureDetector(
+                            key: UniqueKey(),
+                            child: Icon(
+                              Icons.bookmark,
+                              color: Colors.lightBlue,
+                              size: 28, //32
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Expanded(child: Container()),
-                    Column(
-                      children: [
-                        // Bookmark icon
-                        GestureDetector(
-                          child: Icon(
-                            Icons.bookmark,
-                            color: Colors.lightBlue,
+                            onTap: () => {
+                              BackendService().favouriteReel(widget.reel.id),
+                              // sizeOf(Icon(icon))
+                            },
                           ),
-                          onTap: () =>
-                              {BackendService().favouriteReel(widget.reel.id)},
-                        ),
-                        SizedBox(height: 10),
+                          SizedBox(height: 10),
 
-                        // Heart icon
-                        GestureDetector(
-                          child: Icon(
-                            Icons.heart_broken,
-                            color: Colors.pink,
+                          // Heart icon
+                          AnimatedSwitcher(
+                            duration: Duration(seconds: 2),
+                            switchInCurve: Curves.easeInOut,
+                            switchOutCurve: Curves.easeInOut,
+                            transitionBuilder:
+                                (Widget child, Animation<double> animation) {
+                              return ScaleTransition(
+                                  scale: animation, child: child);
+                            },
+                            child: GestureDetector(
+                              key: UniqueKey(),
+                              child: Icon(
+                                Icons.thumb_up_sharp,
+                                color: Colors.pink,
+                                size: 28,
+                              ),
+                              onTap: () => {
+                                BackendService().likeReel(widget.reel.id),
+                                setState(() {
+                                  widget.reel.likes = widget.reel.likes + 1;
+                                }),
+                              },
+                            ),
                           ),
-                          onTap: () => {
-                            BackendService().likeReel(widget.reel.id),
-                          },
-                        ),
-                        BodyText(
-                          text: widget.reel.likes.toString(),
-                          textColor: Colors.white,
-                        ),
+                          BodyText(
+                            text: widget.reel.likes.toString(),
+                            textColor: Colors.white,
+                          ),
 
-                        SizedBox(height: 10),
-                        // Comments icon
-                        GestureDetector(
-                          child: Icon(
-                            Icons.comment,
-                            color: Colors.green,
+                          SizedBox(height: 10),
+                          // Comments icon
+                          GestureDetector(
+                            child: Icon(
+                              Icons.comment,
+                              color: Colors.green,
+                              size: 28,
+                            ),
+                            onTap: () => {
+                              _showCommentsSheet(context),
+                            },
                           ),
-                          onTap: () => {_showCommentsSheet(context)},
-                        ),
-                        BodyText(
-                          text: widget.reel.comments.toString(),
-                          textColor: Colors.white,
-                        ),
+                          BodyText(
+                            text: widget.reel.comments.toString(),
+                            textColor: Colors.white,
+                          ),
 
-                        SizedBox(height: 10),
-                        // More icon
-                        GestureDetector(
-                          child: Icon(
-                            Icons.report,
-                            color: Colors.white,
+                          SizedBox(height: 10),
+                          // More icon
+                          GestureDetector(
+                            child: Icon(
+                              Icons.report,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            onTap: () => {_showReportSheet(context)},
                           ),
-                          onTap: () => {_showReportSheet(context)},
-                        ),
-                      ],
-                    )
-                  ],
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ],
             ),

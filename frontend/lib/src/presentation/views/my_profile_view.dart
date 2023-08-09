@@ -44,8 +44,9 @@ class _ProfileScreenState extends State<MyProfileView> {
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
                 children: [
+                  SizedBox(height: 12),
                   buildProfileRow(user),
-                  SizedBox(height: 10),
+                  SizedBox(height: 24),
                   buildSegmentedButton(),
                   SizedBox(height: 10),
                   buildPostsOrAboutSection(currentlySelectedUserId, user),
@@ -70,17 +71,15 @@ class _ProfileScreenState extends State<MyProfileView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MainHeading(text: user.fullName),
-              const SizedBox(height: 8),
-              BodyText(text: user.profileText),
               const SizedBox(height: 16),
-              RoundedIconButton(
-                icon: Icons.person_add,
-                text: 'Follow',
-                onPressed: () {
-                  BackendService().followUser(user.id);
-                },
-              ),
+              MainHeading(text: user.fullName),
+              const SizedBox(height: 24),
+              // MainHeading(text: user.profileText),
+              Text(user.profileText, maxLines: 3),
+              // HeadingElement.h4(text: user.profileText),
+              // const SizedBox(height: 8),
+              // BodyText(text: user.profileText),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -101,6 +100,13 @@ class _ProfileScreenState extends State<MyProfileView> {
         ),
       ],
       selected: <PostsAboutType>{postsAboutTypeView},
+      style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(
+              Color(0xFFFCD443).withOpacity(0.7)),
+          padding: const MaterialStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 20, vertical: 4)),
+          foregroundColor: MaterialStatePropertyAll(Colors.purple[900]),
+          iconColor: MaterialStatePropertyAll(Colors.white)),
       onSelectionChanged: (Set<PostsAboutType> newSelection) {
         setState(() {
           postsAboutTypeView = newSelection.first;
@@ -137,7 +143,7 @@ class _ProfileScreenState extends State<MyProfileView> {
     } else {
       return Expanded(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.all(48),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -158,6 +164,7 @@ class _ProfileScreenState extends State<MyProfileView> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         buildFollowersColumn(user),
+        SizedBox(width: 80),
         buildFollowingColumn(user),
       ],
     );
@@ -166,8 +173,13 @@ class _ProfileScreenState extends State<MyProfileView> {
   Widget buildFollowersColumn(model.User user) {
     return Column(
       children: [
-        MainHeading(text: user.followers.toString()),
-        BodyText(text: 'Followers'),
+        Text(user.followers.toString(), textScaleFactor: 3),
+        SizedBox(height: 2),
+        Text(
+          'Followers',
+          style: TextStyle(color: Colors.grey[500]),
+          textScaleFactor: 1.25,
+        ),
       ],
     );
   }
@@ -175,8 +187,13 @@ class _ProfileScreenState extends State<MyProfileView> {
   Widget buildFollowingColumn(model.User user) {
     return Column(
       children: [
-        MainHeading(text: user.following.toString()),
-        BodyText(text: 'Following'),
+        Text(user.following.toString(), textScaleFactor: 3),
+        SizedBox(height: 2),
+        Text(
+          'Following',
+          style: TextStyle(color: Colors.grey[500]),
+          textScaleFactor: 1.25,
+        ),
       ],
     );
   }
