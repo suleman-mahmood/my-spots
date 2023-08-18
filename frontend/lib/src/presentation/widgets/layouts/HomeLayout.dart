@@ -66,7 +66,7 @@ class _HomeLayoutState extends State<HomeLayout> {
         }),
         bottomNavigationBar: DotNavigationBar(
           marginR: const EdgeInsets.only(bottom: 0),
-          splashColor: Colors.orange[200],
+          splashColor: Color(0xFF88B930),
           enablePaddingAnimation: false,
           borderRadius: 0,
           backgroundColor:
@@ -74,27 +74,27 @@ class _HomeLayoutState extends State<HomeLayout> {
           items: [
             DotNavigationBarItem(
               icon: Icon(Icons.home_outlined),
-              selectedColor: Colors.orange[200],
+              selectedColor: Color(0xFF88B930),
             ),
             DotNavigationBarItem(
               icon: Icon(Icons.search),
-              selectedColor: Colors.orange[200],
+              selectedColor: Color(0xFF88B930),
             ),
             DotNavigationBarItem(
               icon: Icon(Icons.camera_alt_outlined),
-              selectedColor: Colors.orange[200],
+              selectedColor: Color(0xFF88B930),
             ),
             DotNavigationBarItem(
               icon: Icon(Icons.save_as_outlined),
-              selectedColor: Colors.orange[200],
+              selectedColor: Color(0xFF88B930),
             ),
             DotNavigationBarItem(
               icon: Icon(Icons.person_outlined),
-              selectedColor: Colors.orange[200],
+              selectedColor: Color(0xFF88B930),
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Colors.amber[200],
+          selectedItemColor: Color(0xFF88B930),
           unselectedItemColor:
               _selectedIndex == 2 ? Colors.white : Colors.black,
           onTap: _onItemTapped,

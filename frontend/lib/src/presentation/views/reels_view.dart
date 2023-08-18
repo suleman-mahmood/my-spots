@@ -93,7 +93,7 @@ class CommentWidget extends StatelessWidget {
                   MainHeading(text: user.fullName),
                   Container(
                     width: 150,
-                    child: Flexible(
+                    child: Expanded(
                       child: BodyText(
                         text: comment.commentText,
                         textAlign: TextAlign.start,
@@ -429,7 +429,7 @@ class _ReelViewState extends State<ReelView> {
                         // description fix error here
                         Container(
                           width: 300,
-                          child: Flexible(
+                          child: Expanded(
                             child: BodyText(
                               text: widget.reel.description,
                               textColor: Colors.white,

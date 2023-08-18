@@ -13,55 +13,68 @@ class WelcomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    var padding = MediaQuery.of(context).viewPadding;
+    double height3 = height - padding.top - kToolbarHeight;
+    double height4 = height3 / 5;
+    double width_screen = MediaQuery.of(context).size.width;
+    // print(width);
+    // print(height4);
+
+    // double quarterHeight = screenHeight * 0.00025;
+    // print(quarterHeight);
+
     return AuthLayout(
-      backgroundColor: Colors.yellow,
+      backgroundColor: const Color(0xFF132B32),
       children: [
-        Image.asset(
-          "assets/images/logo.png",
-          width: 200,
-          height: 200,
-        ),
+        // Image.asset(
+        //   "assets/images/logo.png",
+        //   wid  th: 200,
+        //   height: 200,
+        // ),
+        SizedBox(height: height4),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('My',
+            Text('My',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w900,
-                  fontSize: 56,
+                  fontSize: width_screen / 8,
                 )),
             Text(
               ' Spot',
               style: TextStyle(
-                color: secondaryColor1,
+                color: Color(0xFF88B930),
                 fontWeight: FontWeight.w900,
-                fontSize: 56,
+                fontSize: width_screen / 8,
               ),
             ),
           ],
         ),
-        const SizedBox(
-          height: 24,
+        SizedBox(
+          height: height4 / 4,
         ),
         PrimaryButton(
           buttonText: "Login",
           onPressed: () => {context.router.push(LoginRoute())},
         ),
-        const SizedBox(
-          height: 16,
+        SizedBox(
+          height: height4 / 9,
         ),
         SecondaryButton(
           buttonText: "Create new account",
           onPressed: () => {context.router.push(SignupRoute())},
         ),
-        const SizedBox(
-          height: 8,
+        SizedBox(
+          height: height4 / 8,
         ),
         Wrap(
           alignment: WrapAlignment.center,
           children: [
             BodyText(
               text: 'By signing up you agree to the ',
+              textColor: Colors.white,
             ),
             BodyText(
               text: 'Terms of use & privacy policy',

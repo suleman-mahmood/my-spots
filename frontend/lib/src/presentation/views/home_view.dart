@@ -35,6 +35,10 @@ class _HomeScreenState extends State<HomeView> {
   PageController controller = PageController(initialPage: 0);
 
   void _showLocationSheet(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    var padding = MediaQuery.of(context).viewPadding;
+    double height3 = height - padding.top - kToolbarHeight;
+    double height4 = height3 / 4;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -47,7 +51,7 @@ class _HomeScreenState extends State<HomeView> {
         return SingleChildScrollView(
           child: Column(children: [
             Container(
-              height: 200,
+              height: height4,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(40),
@@ -64,16 +68,17 @@ class _HomeScreenState extends State<HomeView> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   MainHeading(text: 'Enable your location?'),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   const BodyText(
                     text:
                         'This application requires that your location services are turned on to find the best Spots near you.',
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   PrimaryButton(
                     buttonText: 'Enable',
                     onPressed: () => handleLocationRequest(),
                   ),
+                  SizedBox(height: 25)
                 ],
               ),
             ),
@@ -101,6 +106,10 @@ class _HomeScreenState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    var padding = MediaQuery.of(context).viewPadding;
+    double height3 = height - padding.top - kToolbarHeight;
+    double height4 = height3 / 45;
     return Expanded(
       child: Stack(
         alignment: Alignment.topCenter,
@@ -145,7 +154,7 @@ class _HomeScreenState extends State<HomeView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 20),
+                  padding: EdgeInsets.only(top: height4),
                   child: Container(
                     padding: const EdgeInsets.all(2.0),
                     decoration: BoxDecoration(
@@ -157,8 +166,8 @@ class _HomeScreenState extends State<HomeView> {
                       minHeight: 32,
                       cornerRadius: 20.0,
                       activeBgColors: [
-                        [Color(0xFFFCD443)!.withOpacity(0.7)],
-                        [Color(0xFFFCD443)!.withOpacity(0.7)],
+                        [Color(0xFF88B930)!.withOpacity(0.7)],
+                        [Color(0xFF88B930)!.withOpacity(0.7)],
                       ],
                       activeFgColor: Colors.black,
                       inactiveBgColor: Colors.transparent,
@@ -493,6 +502,11 @@ class _ReelViewState extends State<ReelView> {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    var padding = MediaQuery.of(context).viewPadding;
+    double height3 = height - padding.top - kToolbarHeight;
+    double height4 = height3 / 4;
+    double width_screen = MediaQuery.of(context).size.width;
     return AspectRatio(
       aspectRatio: _controller.value.aspectRatio,
       child: Stack(
@@ -505,7 +519,7 @@ class _ReelViewState extends State<ReelView> {
             ),
             child: Column(
               children: [
-                const SizedBox(height: 60),
+                SizedBox(height: height4 / 2.5),
                 // Profile information and stuff
                 FutureBuilder(
                   future: BackendService().getAnyUser(widget.reel.userId),
@@ -586,20 +600,18 @@ class _ReelViewState extends State<ReelView> {
                           // description fix error here
                           Container(
                             width: 300,
-                            child: Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(4, 0, 0, 4),
-                                child: Text(
-                                  widget.reel.description,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      height: 1.5,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14),
-                                  textAlign: TextAlign.left,
-                                ),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(4, 0, 0, 4),
+                              child: Text(
+                                widget.reel.description,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    height: 1.5,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14),
+                                textAlign: TextAlign.left,
                               ),
                             ),
                           ),
@@ -622,82 +634,84 @@ class _ReelViewState extends State<ReelView> {
                           ),
                         ],
                       ),
-                      Expanded(child: Container()),
-                      Column(
-                        children: [
-                          // Bookmark
-                          GestureDetector(
-                            key: UniqueKey(),
-                            child: Icon(
-                              Icons.bookmark,
-                              color: Colors.lightBlue,
-                              size: 28, //32
-                            ),
-                            onTap: () => {
-                              BackendService().favouriteReel(widget.reel.id),
-                              // sizeOf(Icon(icon))
-                            },
-                          ),
-                          SizedBox(height: 10),
-
-                          // Heart icon
-                          AnimatedSwitcher(
-                            duration: Duration(seconds: 2),
-                            switchInCurve: Curves.easeInOut,
-                            switchOutCurve: Curves.easeInOut,
-                            transitionBuilder:
-                                (Widget child, Animation<double> animation) {
-                              return ScaleTransition(
-                                  scale: animation, child: child);
-                            },
-                            child: GestureDetector(
+                      Container(
+                        // width: width_screen / 4,
+                        child: Column(
+                          children: [
+                            // Bookmark
+                            GestureDetector(
                               key: UniqueKey(),
                               child: Icon(
-                                Icons.thumb_up_sharp,
-                                color: Colors.pink,
-                                size: 28,
+                                Icons.bookmark,
+                                color: Colors.lightBlue,
+                                size: width_screen / 18, //32
                               ),
                               onTap: () => {
-                                BackendService().likeReel(widget.reel.id),
-                                setState(() {
-                                  widget.reel.likes = widget.reel.likes + 1;
-                                }),
+                                BackendService().favouriteReel(widget.reel.id),
+                                // sizeOf(Icon(icon))
                               },
                             ),
-                          ),
-                          BodyText(
-                            text: widget.reel.likes.toString(),
-                            textColor: Colors.white,
-                          ),
+                            SizedBox(height: 10),
 
-                          SizedBox(height: 10),
-                          // Comments icon
-                          GestureDetector(
-                            child: Icon(
-                              Icons.comment,
-                              color: Colors.green,
-                              size: 28,
+                            // Heart icon
+                            AnimatedSwitcher(
+                              duration: Duration(seconds: 2),
+                              switchInCurve: Curves.easeInOut,
+                              switchOutCurve: Curves.easeInOut,
+                              transitionBuilder:
+                                  (Widget child, Animation<double> animation) {
+                                return ScaleTransition(
+                                    scale: animation, child: child);
+                              },
+                              child: GestureDetector(
+                                key: UniqueKey(),
+                                child: Icon(
+                                  Icons.thumb_up_sharp,
+                                  color: Colors.pink,
+                                  size: width_screen / 18,
+                                ),
+                                onTap: () => {
+                                  BackendService().likeReel(widget.reel.id),
+                                  setState(() {
+                                    widget.reel.likes = widget.reel.likes + 1;
+                                  }),
+                                },
+                              ),
                             ),
-                            onTap: () => {
-                              _showCommentsSheet(context),
-                            },
-                          ),
-                          BodyText(
-                            text: widget.reel.comments.toString(),
-                            textColor: Colors.white,
-                          ),
+                            BodyText(
+                              text: widget.reel.likes.toString(),
+                              textColor: Colors.white,
+                            ),
 
-                          SizedBox(height: 10),
-                          // More icon
-                          GestureDetector(
-                            child: Icon(
-                              Icons.report,
-                              color: Colors.white,
-                              size: 28,
+                            SizedBox(height: 10),
+                            // Comments icon
+                            GestureDetector(
+                              child: Icon(
+                                Icons.comment,
+                                color: Colors.green,
+                                size: width_screen / 18,
+                              ),
+                              onTap: () => {
+                                _showCommentsSheet(context),
+                              },
                             ),
-                            onTap: () => {_showReportSheet(context)},
-                          ),
-                        ],
+                            BodyText(
+                              text: widget.reel.comments.toString(),
+                              textColor: Colors.white,
+                            ),
+
+                            SizedBox(height: 10),
+                            // More icon
+                            GestureDetector(
+                              child: Icon(
+                                Icons.report,
+                                color: Colors.white,
+                                size: width_screen / 18,
+                              ),
+                              onTap: () => {_showReportSheet(context)},
+                            ),
+                          ],
+                        ),
                       )
                     ],
                   ),

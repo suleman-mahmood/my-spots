@@ -13,13 +13,19 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    var padding = MediaQuery.of(context).viewPadding;
+    double height3 = height - padding.top - kToolbarHeight;
+    double height4 = height3 / 55;
+    // print(height4);
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.all(12),
-        backgroundColor: secondaryColor1, // background color of the button
+        padding: EdgeInsets.all(height4),
+        backgroundColor: Color(0xFF88B930), // background color of the button
         foregroundColor: Colors.white, // font color of the button
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
       onPressed: onPressed,

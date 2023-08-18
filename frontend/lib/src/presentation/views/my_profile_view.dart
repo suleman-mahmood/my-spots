@@ -102,10 +102,10 @@ class _ProfileScreenState extends State<MyProfileView> {
       selected: <PostsAboutType>{postsAboutTypeView},
       style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all<Color>(
-              Color(0xFFFCD443).withOpacity(0.7)),
+              Color(0xFF88B930).withOpacity(0.7)),
           padding: const MaterialStatePropertyAll(
               EdgeInsets.symmetric(horizontal: 20, vertical: 4)),
-          foregroundColor: MaterialStatePropertyAll(Colors.purple[900]),
+          foregroundColor: MaterialStatePropertyAll(Color(0xFF132B32)),
           iconColor: MaterialStatePropertyAll(Colors.white)),
       onSelectionChanged: (Set<PostsAboutType> newSelection) {
         setState(() {
@@ -160,11 +160,12 @@ class _ProfileScreenState extends State<MyProfileView> {
   }
 
   Widget buildFollowersFollowingRow(model.User user) {
+    double width_screen = MediaQuery.of(context).size.width;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         buildFollowersColumn(user),
-        SizedBox(width: 80),
+        SizedBox(width: width_screen / 5),
         buildFollowingColumn(user),
       ],
     );

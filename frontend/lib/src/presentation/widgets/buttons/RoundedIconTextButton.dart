@@ -16,6 +16,13 @@ class RoundedIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    var padding = MediaQuery.of(context).viewPadding;
+    double height3 = height - padding.top - kToolbarHeight;
+    double height4 = height3 / 10;
+    double width_screen = MediaQuery.of(context).size.width;
+    print("Width screen: ");
+    print(width_screen);
     final StreamController<ButtonState> _buttonStateController =
         StreamController<ButtonState>();
 
@@ -24,10 +31,10 @@ class RoundedIconButton extends StatelessWidget {
       initialData: ButtonState.idle,
       builder: (context, snapshot) {
         return Container(
-          width: 116,
-          height: 48,
+          width: width_screen / 3,
+          height: height4,
           child: Padding(
-            padding: const EdgeInsets.all(6.0),
+            padding: const EdgeInsets.all(10.0),
             child: Center(
               child: ProgressButton.icon(
                 iconedButtons: {
@@ -38,7 +45,7 @@ class RoundedIconButton extends StatelessWidget {
                       size: 24,
                       color: Colors.white,
                     ),
-                    color: Colors.white.withOpacity(0.4),
+                    color: Color(0xFFD9D9D9).withOpacity(0.4),
                   ),
                   ButtonState.loading: IconedButton(
                     text: "Loading",
@@ -60,7 +67,7 @@ class RoundedIconButton extends StatelessWidget {
                       color: Colors.white,
                       size: 24,
                     ),
-                    color: Colors.white.withOpacity(0.3),
+                    color: Color(0xFFD9D9D9).withOpacity(0.4),
                   ),
                 },
                 onPressed: () async {
