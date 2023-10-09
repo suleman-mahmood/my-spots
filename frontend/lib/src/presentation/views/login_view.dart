@@ -102,8 +102,7 @@ class LoginView extends StatelessWidget {
                 MainHeading(text: 'Forgot your password?'),
                 const SizedBox(height: 10),
                 const BodyText(
-                  text:
-                      'Enter your email and we will send a link to reset your password',
+                  text: 'Enter your email and we will send a link to reset your password',
                 ),
                 const SizedBox(height: 10),
                 TextInput(
@@ -245,7 +244,7 @@ class LoginView extends StatelessWidget {
               text: 'Don\'t have an account? ',
             ),
             LinkText(
-              text: 'SignUp',
+              text: 'Sign Up',
               textColor: secondaryColor1,
               onPressed: () => {
                 context.router.push(SignupRoute()),

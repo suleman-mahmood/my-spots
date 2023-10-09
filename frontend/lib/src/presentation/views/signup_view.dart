@@ -72,8 +72,11 @@ class SignupView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AuthLayout(
       children: [
-        MainHeading(text: 'Hello!'),
-        MainHeading(text: 'Please Sign Up to continue'),
+        MainHeading(
+          text: 'Welcome to My Spots',
+        ),
+        const SizedBox(height: 5),
+        MainHeading(text: 'Let\'s get you started'),
         const SizedBox(height: 20),
         Form(
           key: _signInFormKey,
